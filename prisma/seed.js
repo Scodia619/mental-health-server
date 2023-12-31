@@ -14,6 +14,7 @@ const seed = async() => {
             username: 'JDoe',
             first_name: 'John',
             last_name: 'Doe',
+            password: 'sha1$18970629$1$0aa11b7fa71125c6711eb31bde91524b9ec34418',
             email: 'john@example.com',
             phone: '1234567890',
           },
@@ -23,6 +24,7 @@ const seed = async() => {
             last_name: 'Smith',
             email: 'jane@example.com',
             phone: '9876543210',
+            password: 'sha1$18970629$1$0aa11b7fa71125c6711eb31bde91524b9ec34418',
           },
           {
             username: 'JPrince',
@@ -30,6 +32,7 @@ const seed = async() => {
             last_name: 'Prince',
             email: 'janice@example.com',
             phone: '9876543220',
+            password: 'sha1$18970629$1$0aa11b7fa71125c6711eb31bde91524b9ec34418',
           },
           // Add more users as needed
         ],

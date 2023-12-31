@@ -55,7 +55,8 @@ describe('Creating a user', ()=>{
             first_name: 'William',
             last_name: 'Price',
             email: 'billyjoe2701@gmail.com',
-            phone: '7951882145'
+            phone: '7951882145',
+            password: '1234'
         }
         return request(app)
         .post('/api/users/create')
@@ -68,6 +69,7 @@ describe('Creating a user', ()=>{
                 last_name: 'Price',
                 email: 'billyjoe2701@gmail.com',
                 phone: '7951882145',
+                password: expect.any(String),
                 created_at: expect.any(String),
                 updated_at: expect.any(String)
             })
@@ -79,7 +81,8 @@ describe('Creating a user', ()=>{
             first_name: 'Janice',
             last_name: 'Prince',
             email: 'jhfhfhfh@example.com',
-            phone: '9876543220'
+            phone: '9876543220',
+            password: '1234'
         }
         return request(app)
         .post('/api/users/create')
@@ -95,7 +98,8 @@ describe('Creating a user', ()=>{
             first_name: 'Janice',
             last_name: 'Prince',
             email: 'janice@example.com',
-            phone: '9876543220'
+            phone: '9876543220',
+            password: '1234'
         }
         return request(app)
         .post('/api/users/create')
@@ -111,6 +115,7 @@ describe('Creating a user', ()=>{
             first_name: 'Janice',
             last_name: 'Prince',
             email: 'janice@example.com',
+            password: '1234'
         }
         return request(app)
         .post('/api/users/create')
@@ -126,7 +131,8 @@ describe('Creating a user', ()=>{
             first_name: 'Janice',
             last_name: 'Prince',
             email: 'janice@example.com',
-            phone: '9876543220'
+            phone: '9876543220',
+            password: '1234'
         }
         return request(app)
         .post('/api/users/create')

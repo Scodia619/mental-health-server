@@ -1,6 +1,8 @@
 const { selectAllUsers, selectUserByName, selectUsersByUsername, selectUsersByEmail, postUser } = require("../Repositories/userRepository")
 const { noUserError, missingDataError, incorrectDataError, usernameExistsError, emailExistsError } = require("../errorVariables")
 
+const passwordHash = require('password-hash')
+
 exports.getUsers = (req, res, next) => {
   selectAllUsers().then((users)=>{
     res.status(200).send({users})
@@ -21,11 +23,13 @@ exports.getUsersByName = (req, res, next) => {
 
 exports.createUser = (req,res,next) => {
 
-    const {username, first_name, last_name, email, phone} = req.body
+    const {username, first_name, last_name, email, phone, password} = req.body
 
-    if(!username || !first_name || !last_name || !email || !phone){
+    if(!username || !first_name || !last_name || !email || !phone || !password){
         throw missingDataError
     }
+
+    const hashedPassword = passwordHash.generate(password)
 
     if(!isNaN(parseInt(username)) || !isNaN(parseInt(first_name)) || !isNaN(parseInt(last_name)) || !isNaN(parseInt(email))){
         throw incorrectDataError
@@ -45,7 +49,8 @@ exports.createUser = (req,res,next) => {
             first_name,
             last_name,
             email,
-            phone
+            phone,
+            password: hashedPassword
         }
         return postUser(userData)
     }).then((users)=>{
