@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User{
+  id         Int          @id @default(autoincrement())
+  first_name String
+  last_name  String
+  email String @unique
+  phone String
+  created_at DateTime     @default(now())
+  updated_at DateTime     @updatedAt
+  posts Posts[]
+}
+
+model Topic{
+  id         Int          @id @default(autoincrement())
+  topic_name String @unique
+  created_at DateTime     @default(now())
+  post PostTopics[]
+}
+
+model Posts{
+  post_id         Int          @id @default(autoincrement())
+  user_id    Int 
+  user User @relation(fields: [user_id], references: [id])
+  is_private Boolean
+  title String
+  content String
+  topics PostTopics[]
+  created_at DateTime     @default(now())
+}
+
+model PostTopics{
+  id         Int          @id @default(autoincrement())
+  post Posts @relation(fields: [post_id], references: [post_id])
+  post_id Int
+  topic Topic @relation(fields: [topic_id], references: [id])
+  topic_id Int
+
+  @@unique([post_id, topic_id])
+}
