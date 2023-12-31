@@ -143,3 +143,62 @@ describe('Creating a user', ()=>{
         })
     })
 })
+
+describe('Logging in a user', ()=>{
+    test('200 - Logs in a user', ()=>{
+        const userData = {
+            username: 'JDoe',
+            password: '1234'
+        }
+        return request(app)
+        .post('/api/users/login')
+        .send(userData)
+        .expect(200)
+        .then(({body: {users}})=>{
+            expect(users[0]).toMatchObject({
+                username: 'JDoe',
+                password: 'sha1$91a1f66d$1$917563ed687289a9329578ac9384246fd3da4226'
+            })
+        })
+    })
+    test('400 - Missing Data', ()=>{
+        const userData = {
+            username: 'JDoe'
+        }
+        return request(app)
+        .post('/api/users/login')
+        .send(userData)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Missing Data')
+        })
+    })
+
+    test('404 - No username', ()=>{
+        const userData = {
+            username: 'scodia619',
+            password: '1234'
+        }
+        return request(app)
+        .post('/api/users/login')
+        .send(userData)
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe('No users found')
+        })
+    })
+
+    test('400 - Invalid Password', ()=>{
+        const userData = {
+            username: 'JDoe',
+            password: '2134'
+        }
+        return request(app)
+        .post('/api/users/login')
+        .send(userData)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Invalid Password')
+        })
+    })
+})

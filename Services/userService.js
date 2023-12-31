@@ -1,5 +1,5 @@
-const { selectAllUsers, selectUserByName, selectUsersByUsername, selectUsersByEmail, postUser } = require("../Repositories/userRepository")
-const { noUserError, missingDataError, incorrectDataError, usernameExistsError, emailExistsError } = require("../errorVariables")
+const { selectAllUsers, selectUserByName, selectUsersByUsername, selectUsersByEmail, postUser, selectUserByUserAndPass, selectUsersByUsernameLogin } = require("../Repositories/userRepository")
+const { noUserError, missingDataError, incorrectDataError, usernameExistsError, emailExistsError, invalidPasswordError } = require("../errorVariables")
 
 const passwordHash = require('password-hash')
 
@@ -55,6 +55,27 @@ exports.createUser = (req,res,next) => {
         return postUser(userData)
     }).then((users)=>{
         res.status(201).send({users})
+    }).catch(err => {
+        next(err)
+    })
+}
+
+exports.loginUser = (req, res, next) => {
+    const {username, password} = req.body
+
+    if(!username || !password){
+        throw missingDataError
+    }
+
+    selectUsersByUsername(username).then((users) => {
+        if(!users.length){
+            throw noUserError
+        }
+
+        if(!passwordHash.verify(password, users[0].password)){
+            throw invalidPasswordError
+        }
+        res.status(200).send({users})
     }).catch(err => {
         next(err)
     })

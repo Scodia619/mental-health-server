@@ -1,5 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const passwordHash = require('password-hash')
 
 const seed = async() => {
 
@@ -14,7 +15,7 @@ const seed = async() => {
             username: 'JDoe',
             first_name: 'John',
             last_name: 'Doe',
-            password: 'sha1$18970629$1$0aa11b7fa71125c6711eb31bde91524b9ec34418',
+            password: 'sha1$91a1f66d$1$917563ed687289a9329578ac9384246fd3da4226',
             email: 'john@example.com',
             phone: '1234567890',
           },

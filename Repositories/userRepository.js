@@ -25,6 +25,7 @@ exports.selectUsersByUsername = async (username) => {
             username: username
         }
     })
+
     return users
 }
 
@@ -40,6 +41,16 @@ exports.selectUsersByEmail = async (email) => {
 exports.postUser = async (userData) => {
     const users = await prisma.user.create({
         data: userData
+    })
+    return users
+}
+
+exports.selectUserByUserAndPass = async (username, password) => {
+    const users = await prisma.user.findUnique({
+        where: {
+            username: username,
+            password: password
+        }
     })
     return users
 }

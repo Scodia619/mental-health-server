@@ -18,10 +18,15 @@ const emailExistsError = new Error();
 emailExistsError.status = 400;
 emailExistsError.msg = "Email already exists";
 
+const invalidPasswordError = new Error ();
+invalidPasswordError.status = 400;
+invalidPasswordError.msg = 'Invalid Password'
+
 module.exports = {
   noUserError,
   missingDataError,
   incorrectDataError,
   usernameExistsError,
   emailExistsError,
+  invalidPasswordError
 };
