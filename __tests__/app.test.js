@@ -202,3 +202,24 @@ describe('Logging in a user', ()=>{
         })
     })
 })
+
+describe('Get all posts', ()=>{
+    test('200 - gets all the posts', ()=>{
+        return request(app)
+        .get('/api/posts')
+        .expect(200)
+        .then(({body:{posts}})=>{
+            expect(posts).toHaveLength(2)
+            posts.forEach(post => {
+                expect(post).toMatchObject({
+                    post_id: expect.any(Number),
+                    user_id: expect.any(Number),
+                    is_private: expect.any(Boolean),
+                    title: expect.any(String),
+                    content: expect.any(String),
+                    created_at: expect.any(String)
+                })
+            })
+        })
+    })
+})
