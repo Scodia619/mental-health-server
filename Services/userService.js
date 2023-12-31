@@ -1,5 +1,5 @@
-const { selectAllUsers, selectUserByName } = require("../Repositories/userRepository")
-const { noUserError } = require("../errorVariables")
+const { selectAllUsers, selectUserByName, selectUsersByUsername, selectUsersByEmail, postUser } = require("../Repositories/userRepository")
+const { noUserError, missingDataError, incorrectDataError, usernameExistsError, emailExistsError } = require("../errorVariables")
 
 exports.getUsers = (req, res, next) => {
   selectAllUsers().then((users)=>{
@@ -14,6 +14,42 @@ exports.getUsersByName = (req, res, next) => {
             throw noUserError
         }
         res.status(200).send({users})
+    }).catch(err => {
+        next(err)
+    })
+}
+
+exports.createUser = (req,res,next) => {
+
+    const {username, first_name, last_name, email, phone} = req.body
+
+    if(!username || !first_name || !last_name || !email || !phone){
+        throw missingDataError
+    }
+
+    if(!isNaN(parseInt(username)) || !isNaN(parseInt(first_name)) || !isNaN(parseInt(last_name)) || !isNaN(parseInt(email))){
+        throw incorrectDataError
+    }
+
+    selectUsersByUsername(username).then((users)=>{
+        if(users.length){
+            throw usernameExistsError
+        }
+        return selectUsersByEmail(email)
+    }).then((users) =>{
+        if(users.length) {
+            throw emailExistsError
+        }
+        const userData = {
+            username,
+            first_name,
+            last_name,
+            email,
+            phone
+        }
+        return postUser(userData)
+    }).then((users)=>{
+        res.status(201).send({users})
     }).catch(err => {
         next(err)
     })

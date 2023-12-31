@@ -18,3 +18,28 @@ exports.selectUserByName = async (characters) => {
 
     return users
 }
+
+exports.selectUsersByUsername = async (username) => {
+    const users = await prisma.user.findMany({
+        where: {
+            username: username
+        }
+    })
+    return users
+}
+
+exports.selectUsersByEmail = async (email) => {
+    const users = await prisma.user.findMany({
+        where: {
+            email: email
+        }
+    })
+    return users
+}
+
+exports.postUser = async (userData) => {
+    const users = await prisma.user.create({
+        data: userData
+    })
+    return users
+}

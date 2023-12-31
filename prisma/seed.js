@@ -11,18 +11,21 @@ const seed = async() => {
     await prisma.user.createMany({
         data: [
           {
+            username: 'JDoe',
             first_name: 'John',
             last_name: 'Doe',
             email: 'john@example.com',
             phone: '1234567890',
           },
           {
+            username: 'JSmith',
             first_name: 'Jane',
             last_name: 'Smith',
             email: 'jane@example.com',
             phone: '9876543210',
           },
           {
+            username: 'JPrince',
             first_name: 'Janice',
             last_name: 'Prince',
             email: 'janice@example.com',
@@ -70,4 +73,6 @@ const seed = async() => {
       });
     }
 
-seed()
+// seed()
+
+module.exports = seed
