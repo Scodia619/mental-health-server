@@ -22,3 +22,25 @@ describe('Get all users', ()=>{
         })
     })
 })
+
+describe('Gets all users with names containing Jan', ()=>{
+    test('200 - Gets all users needed', ()=>{
+        return request(app)
+        .get('/api/users/Jan')
+        .expect(200)
+        .then(({body: {users}}) => {
+            expect(users).toHaveLength(2)
+            users.forEach(user => {
+                expect(user.first_name.includes('Jan')).toBe(true)
+            })
+        })
+    })
+    test('404 - No users found', ()=>{
+        return request(app)
+        .get('/api/users/Hon')
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe('No users found')
+        })
+    })
+})
