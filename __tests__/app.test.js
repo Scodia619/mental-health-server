@@ -223,3 +223,16 @@ describe('Get all posts', ()=>{
         })
     })
 })
+
+describe('Get all topics', ()=>{
+    test('200 - gets all topics', ()=> {
+        return request(app)
+        .get('/api/topics')
+        .expect(200)
+        .then(({body: {topics}})=>{
+            expect(topics).toHaveLength(2)
+            expect(topics[0].topic_name).toBe('Technology')
+            expect(topics[1].topic_name).toBe('Science')
+        })
+    })
+})
