@@ -369,3 +369,50 @@ describe('Gets all posts with a query of is_private', ()=>{
         })
     })
 })
+
+describe('Post a new topic', ()=>{
+    test('201 - posts new topic', ()=>{
+        const topicData = {topic_name: 'Self Harm'}
+        return request(app)
+        .post('/api/topics')
+        .send(topicData)
+        .expect(201)
+        .then(({body: {topics}})=>{
+            expect(topics).toMatchObject({
+                id: 3,
+                created_at: expect.any(String),
+                topic_name: 'Self Harm'
+            })
+        })
+    })
+    test('400 - Missing Data', ()=>{
+        const topicData = {}
+        return request(app)
+        .post('/api/topics')
+        .send(topicData)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Missing Data')
+        })
+    })
+    test('400 - Incorrect Data Type', ()=>{
+        const topicData = {topic_name: 1}
+        return request(app)
+        .post('/api/topics')
+        .send(topicData)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+    test('400 - Topic exists', ()=>{
+        const topicData = {topic_name: 'Science'}
+        return request(app)
+        .post('/api/topics')
+        .send(topicData)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Topic already exists')
+        })
+    })
+})

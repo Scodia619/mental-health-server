@@ -26,6 +26,10 @@ const noTopicsError = new Error();
 noTopicsError.status = 404;
 noTopicsError.msg = "No topics found";
 
+const topicExistsError = new Error();
+topicExistsError.status = 400;
+topicExistsError.msg = 'Topic already exists'
+
 module.exports = {
   noUserError,
   missingDataError,
@@ -34,4 +38,5 @@ module.exports = {
   emailExistsError,
   invalidPasswordError,
   noTopicsError,
+  topicExistsError
 };

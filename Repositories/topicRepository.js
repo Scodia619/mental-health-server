@@ -14,3 +14,10 @@ exports.selectTopicByName = async (topic) => {
     })
     return topics
 }
+
+exports.postNewTopic = async (topicData) => {
+    const topics = await prisma.topic.create({
+        data: topicData
+    })
+    return topics
+}
