@@ -18,6 +18,7 @@ model User{
   created_at DateTime     @default(now())
   updated_at DateTime     @updatedAt
   posts Posts[]
+  comments PostComments[]
 }
 
 model Topic{
@@ -35,6 +36,7 @@ model Posts{
   title String
   content String
   topics PostTopics[]
+  comments PostComments[]
   created_at DateTime     @default(now())
 }
 
@@ -46,4 +48,13 @@ model PostTopics{
   topic_id Int
 
   @@unique([post_id, topic_id])
+}
+
+model PostComments{
+  comment_id Int @id @default(autoincrement())
+  post Posts @relation(fields: [post_id], references: [post_id])
+  post_id Int
+  user User @relation(fields: [user_id], references: [id])
+  user_id Int
+  comment String
 }

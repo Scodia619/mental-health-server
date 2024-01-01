@@ -5,11 +5,25 @@ const { incorrectDataError, noTopicsError, missingDataError, noUserError } = req
 
 exports.getAllPosts = (req, res, next) => {
     
-    const {private: isPrivate} = req.query
+    const {private: isPrivate, username} = req.query
 
-    selectAllPosts(isPrivate ? isPrivate === 'true': undefined).then((posts)=>{
+    console.log(username)
+
+    if(!isNaN(parseInt(username)) && username){
+        throw incorrectDataError
+    }
+
+    selectUsersByUsername(username).then((users)=>{
+        if(!users && username){
+            throw noUserError
+        }
+        return selectAllPosts(isPrivate ? isPrivate === 'true': undefined, users ? users.id : undefined)
+    }).then((posts)=>{
         res.status(200).send({posts})
+    }).catch(err => {
+        next(err)
     })
+
 }
 
 exports.getPostsByTopic = (req, res, next) => {
@@ -49,10 +63,10 @@ exports.createNewPost = (req, res, next) => {
     let returnedPost;
 
     selectUsersByUsername(username).then((users)=>{
-        if(users.length === 0){
+        if(!users){
             throw noUserError
         }
-        user_id = users[0].id
+        user_id = users.id
         return selectTopicByName(topic)
     }).then((topics)=>{
         if(!topics){

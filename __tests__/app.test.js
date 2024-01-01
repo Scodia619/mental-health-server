@@ -155,7 +155,7 @@ describe("Logging in a user", () => {
       .send(userData)
       .expect(200)
       .then(({ body: { users } }) => {
-        expect(users[0]).toMatchObject({
+        expect(users).toMatchObject({
           username: "JDoe",
           password: "sha1$91a1f66d$1$917563ed687289a9329578ac9384246fd3da4226",
         });
@@ -506,3 +506,38 @@ describe("Posting a new post", () => {
       })
   })
 });
+
+describe('Gets all posts by user', ()=>{
+    test('200 - gets all posts by JDoe', ()=>{
+        return request(app)
+        .get('/api/posts?username=JDoe')
+        .expect(200)
+        .then(({body: {posts}})=>{
+            expect(posts).toHaveLength(1)
+            expect(posts[0]).toMatchObject({
+                post_id: 1,
+                user_id: 1,
+                is_private: false,
+                title: "Introduction to Prisma",
+                content: "Prisma is a modern database toolkit...",
+                created_at: expect.any(String),
+            })
+        })
+    })
+    test('400 - Incorrect Data Type', ()=>{
+        return request(app)
+        .get('/api/posts?username=1')
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+    test('404 - No Users', ()=>{
+        return request(app)
+        .get('/api/posts?username=scodia619')
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe('No users found')
+        })
+    })
+})

@@ -76,6 +76,22 @@ const seed = async() => {
           // Add more associations as needed
         ],
       });
+
+      await prisma.postComments.createMany({
+        data: [
+          {
+            post_id: 1, // Comment related to Post 1
+            user_id: 2, // Commented by User 2
+            comment: "Great explanation of Prisma!", // Comment content
+          },
+          {
+            post_id: 2, // Comment related to Post 2
+            user_id: 1, // Commented by User 1
+            comment: "I'm fascinated by quantum physics!", // Comment content
+          },
+          // Add more comments as needed
+        ],
+      });
     }
 
 // seed()

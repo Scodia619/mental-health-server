@@ -20,17 +20,22 @@ exports.selectUserByName = async (characters) => {
 }
 
 exports.selectUsersByUsername = async (username) => {
-    const users = await prisma.user.findMany({
+    if(!username){
+        username = 'user'
+    }
+    const users = await prisma.user.findUnique({
         where: {
             username: username
         }
     })
 
+    console.log(users)
+
     return users
 }
 
 exports.selectUsersByEmail = async (email) => {
-    const users = await prisma.user.findMany({
+    const users = await prisma.user.findUnique({
         where: {
             email: email
         }

@@ -36,12 +36,12 @@ exports.createUser = (req,res,next) => {
     }
 
     selectUsersByUsername(username).then((users)=>{
-        if(users.length){
+        if(users){
             throw usernameExistsError
         }
         return selectUsersByEmail(email)
     }).then((users) =>{
-        if(users.length) {
+        if(users) {
             throw emailExistsError
         }
         const userData = {
@@ -68,11 +68,11 @@ exports.loginUser = (req, res, next) => {
     }
 
     selectUsersByUsername(username).then((users) => {
-        if(!users.length){
+        if(!users){
             throw noUserError
         }
 
-        if(!passwordHash.verify(password, users[0].password)){
+        if(!passwordHash.verify(password, users.password)){
             throw invalidPasswordError
         }
         res.status(200).send({users})
