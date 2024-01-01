@@ -6,11 +6,18 @@ exports.selectAllPosts = async () => {
     return posts
 }
 
-exports.selectPostsByTopic = async (topic_id) => {
+exports.selectPostsByTopic = async (topic_id, isPrivate) => {
     const posts = await prisma.postTopics.findMany({
-        where: { topic_id: topic_id },
-        include: {post: true}
-      })
+        where: {
+          topic_id: topic_id,
+          post: {
+            is_private: isPrivate !== undefined ? isPrivate : undefined,
+          },
+        },
+        include: {
+          post: true,
+        },
+      });
 
       return posts
 }

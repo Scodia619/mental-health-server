@@ -301,3 +301,50 @@ describe('Get topic by name', ()=>{
         })
     })
 })
+
+describe('Gets all posts based on whether a topical post is private or not', ()=>{
+    test('200 - gets the post associated with is private and topic of science', ()=>{
+        return request(app)
+        .get('/api/posts/Science?private=true')
+        .expect(200)
+        .then(({body: {posts}})=>{
+            expect(posts).toHaveLength(1)
+            posts.forEach(({post})=>{
+                expect(post).toMatchObject({
+                    post_id: 2,
+                    user_id: 2,
+                    is_private: true,
+                    title: 'Exploring Quantum Physics',
+                    content: 'Quantum physics is the study of...',
+                    created_at: expect.any(String)
+                })
+            })
+        })
+    })
+    test('200 - gets a post if its not private', ()=>{
+        return request(app)
+        .get('/api/posts/Technology?private=false')
+        .expect(200)
+        .then(({body: {posts}})=>{
+            expect(posts).toHaveLength(1)
+            posts.forEach(({post})=>{
+                expect(post).toMatchObject({
+                    post_id: 1,
+                    user_id: 1,
+                    is_private: false,
+                    title: 'Introduction to Prisma',
+                    content: 'Prisma is a modern database toolkit...',
+                    created_at: expect.any(String)
+                })
+            })
+        })
+    })
+    test('400 - Incorrect Data Type', ()=>{
+        return request(app)
+        .get('/api/posts/Technology?private=1')
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+})

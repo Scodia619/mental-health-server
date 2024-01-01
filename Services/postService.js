@@ -11,8 +11,9 @@ exports.getAllPosts = (req, res, next) => {
 
 exports.getPostsByTopic = (req, res, next) => {
     const {topic} = req.params
-    
-    if(!isNaN(parseInt(topic))){
+    const {private: isPrivate} = req.query
+
+    if(!isNaN(parseInt(topic)) || (isPrivate !== 'false' && isPrivate !== 'true' && isPrivate)){
         throw incorrectDataError
     }
 
@@ -20,7 +21,7 @@ exports.getPostsByTopic = (req, res, next) => {
         if(!topics){
             throw noTopicsError
         }
-        return selectPostsByTopic(topics.id)
+        return selectPostsByTopic(topics.id, isPrivate === 'true')
     }).then((posts)=>{
         res.status(200).send({posts})
     }).catch(err => {
