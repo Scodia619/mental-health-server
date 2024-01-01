@@ -348,3 +348,24 @@ describe('Gets all posts based on whether a topical post is private or not', ()=
         })
     })
 })
+
+describe('Gets all posts with a query of is_private', ()=>{
+    test('200 - Gets all posts with a query of false', ()=> {
+        return request(app)
+        .get('/api/posts?private=false')
+        .expect(200)
+        .then(({body: {posts}})=>{
+            expect(posts).toHaveLength(1)
+            posts.forEach(post => {
+                expect(post).toMatchObject({
+                    post_id: 1,
+                    user_id: 1,
+                    is_private: false,
+                    title: 'Introduction to Prisma',
+                    content: 'Prisma is a modern database toolkit...',
+                    created_at: expect.any(String)
+                })
+            })
+        })
+    })
+})

@@ -3,8 +3,10 @@ const { selectTopicByName } = require("../Repositories/topicRepository")
 const { incorrectDataError, noTopicsError } = require("../errorVariables")
 
 exports.getAllPosts = (req, res, next) => {
+    
+    const {private: isPrivate} = req.query
 
-    selectAllPosts().then((posts)=>{
+    selectAllPosts(isPrivate ? isPrivate === 'true': undefined).then((posts)=>{
         res.status(200).send({posts})
     })
 }
