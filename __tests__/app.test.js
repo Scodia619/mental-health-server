@@ -578,3 +578,22 @@ describe('Gets all posts by user topics', ()=>{
         })
     })
 })
+
+describe('Gets all comments', ()=>{
+    test('200 - gets all comments', ()=>{
+        return request(app)
+        .get('/api/comments')
+        .expect(200)
+        .then(({body: {comments}})=>{
+            expect(comments).toHaveLength(2)
+            comments.forEach(comment => {
+                expect(comment).toMatchObject({
+                    comment_id: expect.any(Number),
+                    post_id: expect.any(Number),
+                    user_id: expect.any(Number),
+                    comment: expect.any(String)
+                })
+            })
+        })
+    })
+})
