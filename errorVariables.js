@@ -34,6 +34,14 @@ const noPostsError = new Error();
 noPostsError.status = 404;
 noPostsError.msg = 'No posts found'
 
+const noHabitError = new Error();
+noHabitError.status = 404
+noHabitError.msg = 'No habits found'
+
+const habitExistsError = new Error();
+habitExistsError.status = 400;
+habitExistsError.msg = 'Habit already exists'
+
 module.exports = {
   noUserError,
   missingDataError,
@@ -43,5 +51,7 @@ module.exports = {
   invalidPasswordError,
   noTopicsError,
   topicExistsError,
-  noPostsError
+  noPostsError,
+  noHabitError,
+  habitExistsError
 };

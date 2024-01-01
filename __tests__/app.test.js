@@ -740,3 +740,94 @@ describe('Gets all habits', ()=>{
         })
     })
 })
+
+describe.only('Gets habits by name', ()=> {
+    test('200 - Gets a habit by name', ()=>{
+        return request(app)
+        .get('/api/habits/Running')
+        .expect(200)
+        .then(({body: {habits}})=>{
+            expect(habits).toMatchObject({
+                habit_id: 2,
+                name: 'Running',
+                description: 'Run 5 kilometers every day',
+                created_at: expect.any(String)
+            })
+        })
+    })
+    test('404 - Habit not found', ()=>{
+        return request(app)
+        .get('/api/habits/Alcohol')
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe('No habits found')
+        })
+    })
+    test('400 - Incorrect Data Type', ()=>{
+        return request(app)
+        .get('/api/habits/1')
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+})
+
+describe('Posts a new habit', ()=>{
+    test('201 - Posts a new habit', ()=>{
+        const habitData = {
+            name: 'Alcohol',
+            description: 'Drinking Too Much'
+        }
+        return request(app)
+        .post('/api/habits')
+        .send(habitData)
+        .expect(201)
+        .then(({body: {habits}})=>{
+            expect(habits).toMatchObject({
+                habit_id: 3,
+                name: 'Alcohol',
+                description: 'Drinking Too Much',
+                created_at: expect.any(String)
+            })
+        })
+    })
+    test('400 - Missing Data', ()=> {
+        const habitData = {
+            name: 'Self Harm'
+        }
+        return request(app)
+        .post('/api/habits')
+        .send(habitData)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Missing Data')
+        })
+    })
+    test('400 - Incorrect Data Type', ()=>{
+        const habitData = {
+            name: 1,
+            description: 1
+        }
+        return request(app)
+        .post('/api/habits')
+        .send(habitData)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+    test('400 - Habit already exists', ()=>{
+        const habitData = {
+            name: 'Running',
+            description: 'Running'
+        }
+        return request(app)
+        .post('/api/habits')
+        .send(habitData)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Habit already exists')
+        })
+    })
+})
