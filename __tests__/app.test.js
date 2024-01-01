@@ -721,3 +721,22 @@ describe('Gets goals by user', ()=>{
         })
     })
 })
+
+describe('Gets all habits', ()=>{
+    test('200 - Gets all habits', ()=>{
+        return request(app)
+        .get('/api/habits')
+        .expect(200)
+        .then(({body: {habits}})=>{
+            expect(habits).toHaveLength(2)
+            habits.forEach(habit => {
+                expect(habit).toMatchObject({
+                    habit_id: expect.any(Number),
+                    name: expect.any(String),
+                    description: expect.any(String),
+                    created_at: expect.any(String)
+                })
+            })
+        })
+    })
+})
