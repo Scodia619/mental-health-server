@@ -44,6 +44,7 @@ const seed = async() => {
         data: [
           { topic_name: 'Technology' },
           { topic_name: 'Science' },
+          { topic_name: 'Self Harm'}
           // Add more topics as needed
         ],
       });

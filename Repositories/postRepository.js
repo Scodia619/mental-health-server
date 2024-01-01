@@ -25,3 +25,17 @@ exports.selectPostsByTopic = async (topic_id, isPrivate) => {
 
       return posts
 }
+
+exports.postNewPost = async (postData) => {
+  const posts = await prisma.posts.create({
+    data: postData
+  })
+  return posts
+}
+
+exports.postNewPostTopics = async (post_id, topic_id) => {
+  const postTopics = await prisma.postTopics.create({
+    data: {post_id, topic_id}
+  })
+  return postTopics
+}
