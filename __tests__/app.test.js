@@ -597,3 +597,30 @@ describe('Gets all comments', ()=>{
         })
     })
 })
+
+describe('Gets all comments by post', ()=>{
+    test('200 - Gets all comments by post', ()=>{
+        return request(app)
+        .get('/api/comments/1')
+        .expect(200)
+        .then(({body: {comments}})=>{
+            expect(comments).toHaveLength(1)
+            comments.forEach(comment => {
+                expect(comment).toMatchObject({
+                    comment_id: 1,
+                    post_id: 1,
+                    user_id: 2,
+                    comment: 'Great explanation of Prisma!'
+                })
+            })
+        })
+    })
+    test('400 - Incorrect Data Type', ()=>{
+        return request(app)
+        .get('/api/comments/banana')
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+})
