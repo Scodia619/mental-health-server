@@ -624,3 +624,62 @@ describe('Gets all comments by post', ()=>{
         })
     })
 })
+
+describe('Posting a comment', ()=>{
+    test('201 - Create a comment',()=>{
+        const commentData = {
+            user_id: 1,
+            comment: 'Prisma Is Awesome !!!'
+        }
+        return request(app)
+        .post('/api/comments/1')
+        .send(commentData)
+        .expect(201)
+        .then(({body: {comments}})=>{
+            expect(comments).toMatchObject({
+                comment_id: 3,
+                post_id: 1,
+                user_id: 1,
+                comment: 'Prisma Is Awesome !!!'
+            })
+        })
+    })
+    test('400 - Missing Data', ()=>{
+        const commentData = {
+            comment: 'Prisma Is Awesome !!!'
+        }
+        return request(app)
+        .post('/api/comments/1')
+        .send(commentData)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Missing Data')
+        })
+    })
+    test('400 - Incorrect Data Type', ()=>{
+        const commentData = {
+            user_id: 'String',
+            comment: 'Prisma Is Awesome !!!'
+        }
+        return request(app)
+        .post('/api/comments/1')
+        .send(commentData)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+    test('404 Post doesnt Exist', ()=>{
+        const commentData = {
+            user_id: 1,
+            comment: 'Prisma Is Awesome !!!'
+        }
+        return request(app)
+        .post('/api/comments/999')
+        .send(commentData)
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe('No posts found')
+        })
+    })
+})

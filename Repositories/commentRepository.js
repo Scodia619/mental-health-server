@@ -14,3 +14,10 @@ exports.selectCommentsByPost = async (post_id) => {
     })
     return comments
 }
+
+exports.postCommentByPost = async (comment_data) => {
+    const comments = await prisma.postComments.create({
+        data: comment_data
+    })
+    return comments
+}

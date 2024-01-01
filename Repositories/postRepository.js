@@ -41,3 +41,13 @@ exports.postNewPostTopics = async (post_id, topic_id) => {
   })
   return postTopics
 }
+
+exports.selectPostById = async (post_id) => {
+  console.log(post_id, typeof post_id)
+  const posts = await prisma.posts.findMany({
+    where: {
+      post_id: post_id
+    }
+  })
+  return posts
+}
