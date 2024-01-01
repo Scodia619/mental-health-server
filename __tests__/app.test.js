@@ -741,7 +741,7 @@ describe('Gets all habits', ()=>{
     })
 })
 
-describe.only('Gets habits by name', ()=> {
+describe('Gets habits by name', ()=> {
     test('200 - Gets a habit by name', ()=>{
         return request(app)
         .get('/api/habits/Running')

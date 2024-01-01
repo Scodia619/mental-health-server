@@ -14,3 +14,10 @@ exports.selectHabitByName = async (name) => {
     })
     return habits
 }
+
+exports.postHabit = async (habitData) => {
+    const habits = prisma.habits.create({
+        data: habitData
+    })
+    return habits
+}

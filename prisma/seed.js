@@ -101,12 +101,10 @@ const seed = async() => {
           {
             name: 'Healthy Eating',
             description: 'Maintain a balanced diet',
-            created_at: new Date().toISOString(),
           },
           {
             name: 'Running',
             description: 'Run 5 kilometers every day',
-            created_at: new Date().toISOString(),
           },
           // Add more habits as needed
         ],

@@ -64,7 +64,8 @@ model Habits{
   habit_id Int @id @default(autoincrement())
   name String @unique
   description String
-  created_at String
+  created_at DateTime     @default(now())
+  updated_at DateTime     @default(now())
   goals UserGoals[]
 }
 
@@ -86,6 +87,6 @@ model UserGoals{
   unit Units @relation(fields: [unit_id], references: [unit_id])
   unit_id Int
   time_period String
-  created_at String
-  updated_at String
+  created_at DateTime     @default(now())
+  updated_at DateTime     @default(now())
 }
