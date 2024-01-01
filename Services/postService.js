@@ -7,7 +7,6 @@ exports.getAllPosts = (req, res, next) => {
     
     const {private: isPrivate, username} = req.query
 
-    console.log(username)
 
     if(!isNaN(parseInt(username)) && username){
         throw incorrectDataError
@@ -28,17 +27,25 @@ exports.getAllPosts = (req, res, next) => {
 
 exports.getPostsByTopic = (req, res, next) => {
     const {topic} = req.params
-    const {private: isPrivate} = req.query
+    const {private: isPrivate, username} = req.query
+    let user_id = undefined;
 
-    if(!isNaN(parseInt(topic)) || (isPrivate !== 'false' && isPrivate !== 'true' && isPrivate)){
+    if(!isNaN(parseInt(topic)) || (isPrivate !== 'false' && isPrivate !== 'true' && isPrivate) || (!isNaN(parseInt(username) && username))){
         throw incorrectDataError
     }
 
-    selectTopicByName(topic).then((topics)=>{
+    selectUsersByUsername(username).then((users)=>{
+        if(!users && username){
+            throw noUserError
+        }else if(users && username){
+            user_id = users.id
+        }
+        return selectTopicByName(topic)
+    }).then((topics)=>{
         if(!topics){
             throw noTopicsError
         }
-        return selectPostsByTopic(topics.id, isPrivate === 'true')
+        return selectPostsByTopic(topics.id, isPrivate === 'true', user_id)
     }).then((posts)=>{
         res.status(200).send({posts})
     }).catch(err => {

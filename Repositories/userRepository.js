@@ -29,8 +29,6 @@ exports.selectUsersByUsername = async (username) => {
         }
     })
 
-    console.log(users)
-
     return users
 }
 

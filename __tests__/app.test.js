@@ -541,3 +541,40 @@ describe('Gets all posts by user', ()=>{
         })
     })
 })
+
+describe('Gets all posts by user topics', ()=>{
+    test('200 - gets all posts by JDoe', ()=>{
+        return request(app)
+        .get('/api/posts/Technology?username=JDoe')
+        .expect(200)
+        .then(({body: {posts}})=>{
+            expect(posts).toHaveLength(1)
+            posts.forEach(({post})=>{
+                expect(post).toMatchObject({
+                    post_id: 1,
+                    user_id: 1,
+                    is_private: false,
+                    title: "Introduction to Prisma",
+                    content: "Prisma is a modern database toolkit...",
+                    created_at: expect.any(String),
+                })
+            })
+        })
+    })
+    test('400 - Incorrect Data Type', ()=>{
+        return request(app)
+        .get('/api/posts/Technology?username=1')
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+    test('404 - No Users', ()=>{
+        return request(app)
+        .get('/api/posts/Technology?username=scodia619')
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe('No users found')
+        })
+    })
+})

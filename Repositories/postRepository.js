@@ -2,7 +2,6 @@ const {PrismaClient} = require('@prisma/client')
 const prisma = new PrismaClient();
 
 exports.selectAllPosts = async (isPrivate, username) => {
-  console.log(username)
     const posts = await prisma.posts.findMany({
         where: {
             is_private: isPrivate !== undefined ? isPrivate : undefined,
@@ -12,12 +11,13 @@ exports.selectAllPosts = async (isPrivate, username) => {
     return posts
 }
 
-exports.selectPostsByTopic = async (topic_id, isPrivate) => {
+exports.selectPostsByTopic = async (topic_id, isPrivate, user_id) => {
     const posts = await prisma.postTopics.findMany({
         where: {
           topic_id: topic_id,
           post: {
             is_private: isPrivate !== undefined ? isPrivate : undefined,
+            user_id: user_id !== undefined ? user_id : undefined
           },
         },
         include: {
