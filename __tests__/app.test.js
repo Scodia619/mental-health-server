@@ -236,3 +236,68 @@ describe('Get all topics', ()=>{
         })
     })
 })
+
+describe('Gets all post from a certain topic', ()=>{
+    test('200 - Get all posts from technology Topic', ()=>{
+        return request(app)
+        .get('/api/posts/Technology')
+        .expect(200)
+        .then(({body: {posts}})=>{
+            expect(posts).toHaveLength(1)
+            posts.forEach(({post}) => {
+                expect(post).toMatchObject({
+                    post_id: 1,
+                    user_id: 1,
+                    is_private: false,
+                    title: 'Introduction to Prisma',
+                    content: 'Prisma is a modern database toolkit...',
+                    created_at: expect.any(String)
+                })
+            })
+        })
+    })
+    test('404 - No topic found', ()=>{
+        return request(app)
+        .get('/api/posts/gifgaf')
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe('No topics found')
+        })
+    })
+
+    test('400 - Incorrect Data type', ()=>{
+        return request(app)
+        .get('/api/posts/1')
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+})
+
+describe('Get topic by name', ()=>{
+    test('200 - gets the topic', ()=>{
+        return request(app)
+        .get('/api/topics/Science')
+        .expect(200)
+        .then(({body: {topics}})=>{
+            expect(topics.topic_name).toBe('Science')
+        })
+    })
+    test('400 - Incorrect Data Type', ()=> {
+        return request(app)
+        .get('/api/topics/1')
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+    test('404 - No Topic found', ()=>{
+        return request(app)
+        .get('/api/topics/banana')
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe('No topics found')
+        })
+    })
+})

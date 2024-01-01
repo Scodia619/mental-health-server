@@ -18,9 +18,13 @@ const emailExistsError = new Error();
 emailExistsError.status = 400;
 emailExistsError.msg = "Email already exists";
 
-const invalidPasswordError = new Error ();
+const invalidPasswordError = new Error();
 invalidPasswordError.status = 400;
-invalidPasswordError.msg = 'Invalid Password'
+invalidPasswordError.msg = "Invalid Password";
+
+const noTopicsError = new Error();
+noTopicsError.status = 404;
+noTopicsError.msg = "No topics found";
 
 module.exports = {
   noUserError,
@@ -28,5 +32,6 @@ module.exports = {
   incorrectDataError,
   usernameExistsError,
   emailExistsError,
-  invalidPasswordError
+  invalidPasswordError,
+  noTopicsError,
 };
