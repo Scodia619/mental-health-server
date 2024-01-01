@@ -19,6 +19,7 @@ model User{
   updated_at DateTime     @updatedAt
   posts Posts[]
   comments PostComments[]
+  goals UserGoals[]
 }
 
 model Topic{
@@ -57,4 +58,34 @@ model PostComments{
   user User @relation(fields: [user_id], references: [id])
   user_id Int
   comment String
+}
+
+model Habits{
+  habit_id Int @id @default(autoincrement())
+  name String @unique
+  description String
+  created_at String
+  goals UserGoals[]
+}
+
+model Units{
+  unit_id Int @id @default(autoincrement())
+  name String @unique
+  symbol String
+  goals UserGoals[]
+}
+
+model UserGoals{
+  goal_id Int @id @default(autoincrement())
+  user User @relation(fields: [user_id], references: [id])
+  user_id Int
+  habit Habits @relation(fields: [habit_id], references: [habit_id])
+  habit_id Int
+  end_date String
+  goal_amount String
+  unit Units @relation(fields: [unit_id], references: [unit_id])
+  unit_id Int
+  time_period String
+  created_at String
+  updated_at String
 }

@@ -8,6 +8,9 @@ const seed = async() => {
     await prisma.$executeRaw`TRUNCATE TABLE "Posts" RESTART IDENTITY CASCADE`;
     await prisma.$executeRaw`TRUNCATE TABLE "User" RESTART IDENTITY CASCADE`;
     await prisma.$executeRaw`TRUNCATE TABLE "Topic" RESTART IDENTITY CASCADE`;
+    await prisma.$executeRaw`TRUNCATE TABLE "UserGoals" RESTART IDENTITY CASCADE`;
+    await prisma.$executeRaw`TRUNCATE TABLE "Habits" RESTART IDENTITY CASCADE`;
+    await prisma.$executeRaw`TRUNCATE TABLE "Units" RESTART IDENTITY CASCADE`;
 
     await prisma.user.createMany({
         data: [
@@ -90,6 +93,68 @@ const seed = async() => {
             comment: "I'm fascinated by quantum physics!", // Comment content
           },
           // Add more comments as needed
+        ],
+      });
+
+      await prisma.habits.createMany({
+        data: [
+          {
+            name: 'Healthy Eating',
+            description: 'Maintain a balanced diet',
+            created_at: new Date().toISOString(),
+          },
+          {
+            name: 'Running',
+            description: 'Run 5 kilometers every day',
+            created_at: new Date().toISOString(),
+          },
+          // Add more habits as needed
+        ],
+      });
+    
+      // Seed Units
+      await prisma.units.createMany({
+        data: [
+          {
+            name: 'Kilogram',
+            symbol: 'kg',
+          },
+          {
+            name: 'Kilometer',
+            symbol: 'km',
+          },
+          // Add more units as needed
+        ],
+      });
+    
+      // Get habit and unit IDs to link with user goals
+      const habits = await prisma.habits.findMany();
+      const units = await prisma.units.findMany();
+    
+      // Seed UserGoals
+      await prisma.userGoals.createMany({
+        data: [
+          {
+            user_id: 1, // User ID from the seeded users
+            habit_id: habits[0].habit_id, // Habit ID from the seeded habits
+            end_date: '2024-12-31',
+            goal_amount: 'Maintain a balanced diet',
+            unit_id: units[0].unit_id, // Unit ID from the seeded units
+            time_period: 'Daily',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+          {
+            user_id: 2, // User ID from the seeded users
+            habit_id: habits[1].habit_id, // Habit ID from the seeded habits
+            end_date: '2024-12-31',
+            goal_amount: '5 kilometers',
+            unit_id: units[1].unit_id, // Unit ID from the seeded units
+            time_period: 'Daily',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+          // Add more user goals as needed
         ],
       });
     }

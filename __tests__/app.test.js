@@ -683,3 +683,41 @@ describe('Posting a comment', ()=>{
         })
     })
 })
+
+describe('Gets goals by user', ()=>{
+    test('200 - gets the goals by a user', ()=>{
+        return request(app)
+        .get('/api/goals?username=JDoe')
+        .expect(200)
+        .then(({body: {goals}})=>{
+            expect(goals).toHaveLength(1)
+            goals.forEach(goal => {
+                expect(goal).toMatchObject({
+                    goal_id: 1,
+                    user_id: 1,
+                    habit_id: 1,
+                    end_date: '2024-12-31',
+                    goal_amount: 'Maintain a balanced diet',
+                    unit_id: 1,
+                    time_period: 'Daily'
+                })
+            })
+        })
+    })
+    test('404 - user doesnt exist', ()=>{
+        return request(app)
+        .get('/api/goals?username=scodia619')
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe('No users found')
+        })
+    })
+    test('400 - Incorrect Data Type', ()=>{
+        return request(app)
+        .get('/api/goals?username=1')
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+})
