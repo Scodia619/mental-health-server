@@ -8,20 +8,22 @@ datasource db {
 }
 
 model User{
-  id         Int          @id @default(autoincrement())
-  username String @unique
-  first_name String
-  last_name  String
-  email String @unique
-  password String
-  phone String
-  created_at DateTime     @default(now())
-  updated_at DateTime     @updatedAt
-  posts Posts[]
-  comments PostComments[]
-  goals UserGoals[]
-  Sender  Friends[] @relation("Sender")
-  Reciever  Friends[] @relation("Reciever")
+  id               Int        @id @default(autoincrement())
+  username         String     @unique
+  first_name       String
+  last_name        String
+  email            String     @unique
+  password         String
+  phone            String
+  created_at       DateTime   @default(now())
+  updated_at       DateTime   @updatedAt
+  posts            Posts[]
+  comments         PostComments[]
+  goals            UserGoals[]
+  Sender           Friends[]  @relation("Sender")
+  Reciever         Friends[]  @relation("Reciever")
+  PosterResources  Resources[] @relation("Poster")
+  ReviewerResources Resources[] @relation("Reviewer")
 }
 
 model Topic{
@@ -29,6 +31,7 @@ model Topic{
   topic_name String @unique
   created_at DateTime     @default(now())
   post PostTopics[]
+  resource ResourceTopics[]
 }
 
 model Posts{
@@ -104,4 +107,27 @@ model Friends {
   Reciever          User     @relation("Reciever", fields: [recieverId], references: [id])
 
   @@unique([senderId, recieverId])
+}
+
+model Resources {
+  resource_id  Int      @id @default(autoincrement())
+  posterId     Int
+  reviewerId   Int
+  status       Boolean  @default(true)
+  url          String
+  name         String
+  image_url    String   @default("")
+  description  String
+  Poster       User     @relation("Poster", fields: [posterId], references: [id])
+  Receiver     User     @relation("Reviewer", fields: [reviewerId], references: [id]) // Corrected spelling to Receiver
+  topic        ResourceTopics[]
+}
+
+model ResourceTopics{
+  id Int @id @default(autoincrement())
+  resource_id Int
+  topic_id Int
+
+  topic Topic @relation(fields: [resource_id], references: [id])
+  resource Resources @relation(fields: [topic_id], references: [resource_id])
 }

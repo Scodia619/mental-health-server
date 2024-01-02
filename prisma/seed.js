@@ -11,6 +11,8 @@ const seed = async() => {
     await prisma.$executeRaw`TRUNCATE TABLE "UserGoals" RESTART IDENTITY CASCADE`;
     await prisma.$executeRaw`TRUNCATE TABLE "Habits" RESTART IDENTITY CASCADE`;
     await prisma.$executeRaw`TRUNCATE TABLE "Units" RESTART IDENTITY CASCADE`;
+    await prisma.$executeRaw`TRUNCATE TABLE "Resources" RESTART IDENTITY CASCADE`;
+    await prisma.$executeRaw`TRUNCATE TABLE "ResourceTopics" RESTART IDENTITY CASCADE`;
 
     await prisma.user.createMany({
         data: [
@@ -158,6 +160,40 @@ const seed = async() => {
       await prisma.friends.createMany({
         data: [{senderId: 1, recieverId: 3, inviteAccepted: true}]
       })
+
+      await prisma.resources.createMany({
+        data: [
+          {
+            posterId: 1, // User ID of the poster
+            reviewerId: 2, // User ID of the reviewer
+            status: true,
+            url: 'https://example.com/resource1',
+            name: 'Resource 1',
+            image_url: 'https://example.com/images/resource1.jpg',
+            description: 'Description of Resource 1',
+          },
+          {
+            posterId: 2, // User ID of another poster
+            reviewerId: 3, // User ID of another reviewer
+            status: true,
+            url: 'https://example.com/resource2',
+            name: 'Resource 2',
+            image_url: 'https://example.com/images/resource2.jpg',
+            description: 'Description of Resource 2',
+          },
+          // Add more resources as needed
+        ],
+      });
+    
+      // Associating ResourceTopics
+      await prisma.resourceTopics.createMany({
+        data: [
+          { resource_id: 1, topic_id: 2 }, // Resource 1 related to the topic with ID 3 (Self Harm)
+          { resource_id: 2, topic_id: 1 }, // Resource 2 related to the topic with ID 1 (Technology)
+          // Add more associations as needed
+        ],
+      });
+
     }
 
 // seed()

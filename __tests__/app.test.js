@@ -1088,3 +1088,26 @@ describe('Gets all users your friends with', ()=>{
         })
     })
 })
+
+describe.only('Getting All Resources', ()=>{
+    test('200 - Gets all resources', ()=>{
+        return request(app)
+        .get('/api/resources')
+        .expect(200)
+        .then(({body: {resources}})=>{
+            expect(resources).toHaveLength(2)
+            resources.forEach(resource => {
+                expect(resource).toMatchObject({
+                    resource_id: expect.any(Number),
+                    posterId: expect.any(Number),
+                    status: expect.any(Boolean),
+                    reviewerId: expect.any(Number),
+                    url: expect.any(String),
+                    name: expect.any(String),
+                    image_url: expect.any(String),
+                    description: expect.any(String)
+                })
+            })
+        })
+    })
+})
