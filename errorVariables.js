@@ -42,6 +42,10 @@ const habitExistsError = new Error();
 habitExistsError.status = 400;
 habitExistsError.msg = 'Habit already exists'
 
+const inviteExistsError = new Error();
+inviteExistsError.status = 400;
+inviteExistsError.msg = 'Invite already sent'
+
 module.exports = {
   noUserError,
   missingDataError,
@@ -53,5 +57,6 @@ module.exports = {
   topicExistsError,
   noPostsError,
   noHabitError,
-  habitExistsError
+  habitExistsError,
+  inviteExistsError
 };

@@ -1,7 +1,7 @@
 const {PrismaClient} = require('@prisma/client')
 const prisma = new PrismaClient();
 
-exports.selectInviteByUser = async (senderId, receiverId) => {
+exports.selectInviteByUsers = async (senderId, receiverId) => {
     const friends = await prisma.friends.findFirst({
         where: {
           OR: [
@@ -9,6 +9,13 @@ exports.selectInviteByUser = async (senderId, receiverId) => {
             { senderId: receiverId, recieverId: senderId },
           ],
         },
+    })
+    return friends
+}
+
+exports.postInvite = async (senderId, recieverId) => {
+    const friends = await prisma.friends.create({
+        data: {senderId, recieverId}
     })
     return friends
 }
