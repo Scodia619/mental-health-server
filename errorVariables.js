@@ -46,6 +46,10 @@ const inviteExistsError = new Error();
 inviteExistsError.status = 400;
 inviteExistsError.msg = 'Invite already sent'
 
+const noInvitesError = new Error();
+noInvitesError.status = 404;
+noInvitesError.msg = 'No invites found'
+
 module.exports = {
   noUserError,
   missingDataError,
@@ -58,5 +62,6 @@ module.exports = {
   noPostsError,
   noHabitError,
   habitExistsError,
-  inviteExistsError
+  inviteExistsError,
+  noInvitesError
 };

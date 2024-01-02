@@ -19,3 +19,24 @@ exports.postInvite = async (senderId, recieverId) => {
     })
     return friends
 }
+
+exports.selectInvitesByUser = async (user_id) => {
+    const friends = await prisma.friends.findMany({
+        where: {
+            recieverId: user_id
+        }
+    })
+    return friends
+}
+
+exports.patchAcceptInvite = async (friend_id, patchData) => {
+    const friends = await prisma.friends.update({
+        where: {
+            id: friend_id
+        },
+        data: {
+            inviteAccepted: patchData
+        }
+    });
+    return friends
+}

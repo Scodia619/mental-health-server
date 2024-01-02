@@ -945,3 +945,110 @@ describe('Sends a request to be friends with a user', ()=>{
         })
     })
 })
+
+describe('Gets a users friend Invites', ()=>{
+    test('200 - Get all friend Requests', ()=>{
+        return request(app)
+        .get('/api/friends/JPrince')
+        .expect(200)
+        .then(({body: {friends}})=>{
+            expect(friends).toHaveLength(1)
+            friends.forEach(invite =>{
+                expect(invite).toMatchObject({
+                    id: 1,
+                    senderId: 1,
+                    recieverId: 3,
+                    invite: true,
+                    inviteAccepted: false
+                })
+            })
+        })
+    })
+    test('400 - Incorrect Data Type', ()=>{
+        return request(app)
+        .get('/api/friends/1')
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+    test('404 - User doesnt exist', ()=>{
+        return request(app)
+        .get('/api/friends/scodia619')
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe('No users found')
+        })
+    })
+})
+
+describe('Patches the invite to accept the friend',()=>{
+    test('200 - Updates the invite', ()=>{
+        const inviteData = {
+            inviteAccepted: true,
+            sender: 'JDoe'
+        }
+        return request(app)
+        .patch('/api/friends/JPrince')
+        .send(inviteData)
+        .expect(200)
+        .then(({body: {friends}})=>{
+            expect(friends).toMatchObject({
+                id: 1,
+                senderId: 1,
+                recieverId: 3,
+                invite: true,
+                inviteAccepted: true
+            })
+        })
+    })
+    test('400 - Missing Data', ()=>{
+        const inviteData = {}
+        return request(app)
+        .patch('/api/friends/JPrince')
+        .send(inviteData)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Missing Data')
+        })
+    })
+    test('400 - Incorrect Data Type', ()=>{
+        const inviteData = {
+            inviteAccepted: 1,
+            sender: 'JDoe'
+        }
+        return request(app)
+        .patch('/api/friends/JDoe')
+        .send(inviteData)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+    test('404 - User not found', ()=>{
+        const inviteData = {
+            inviteAccepted: true,
+            sender: 'JDoe'
+        }
+        return request(app)
+        .patch('/api/friends/scodia619')
+        .send(inviteData)
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe('No users found')
+        })
+    })
+    test('404 - No invites', ()=>{
+        const inviteData = {
+            inviteAccepted: true,
+            sender: 'JDoe'
+        }
+        return request(app)
+        .patch('/api/friends/JDoe')
+        .send(inviteData)
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe('No invites found')
+        })
+    })
+})
