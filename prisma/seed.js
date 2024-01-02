@@ -156,7 +156,7 @@ const seed = async() => {
         ],
       });
       await prisma.friends.createMany({
-        data: [{senderId: 1, recieverId: 3}]
+        data: [{senderId: 1, recieverId: 3, inviteAccepted: true}]
       })
     }
 

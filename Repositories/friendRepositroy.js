@@ -40,3 +40,16 @@ exports.patchAcceptInvite = async (friend_id, patchData) => {
     });
     return friends
 }
+
+exports.selectAcceptedFriends = async (user_id) => {
+    const friends = await prisma.friends.findMany({
+        where: {
+            inviteAccepted: true,
+            OR: [
+                {senderId: user_id},
+                {recieverId: user_id}
+            ]
+        }
+    })
+    return friends
+}

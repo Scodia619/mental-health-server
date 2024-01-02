@@ -843,7 +843,7 @@ describe('Gets friend request by users', ()=>{
                 senderId: 1,
                 recieverId: 3,
                 invite: true,
-                inviteAccepted: false
+                inviteAccepted: true
             })
         })
     })
@@ -959,7 +959,7 @@ describe('Gets a users friend Invites', ()=>{
                     senderId: 1,
                     recieverId: 3,
                     invite: true,
-                    inviteAccepted: false
+                    inviteAccepted: true
                 })
             })
         })
@@ -1049,6 +1049,42 @@ describe('Patches the invite to accept the friend',()=>{
         .expect(404)
         .then(({body})=>{
             expect(body.msg).toBe('No invites found')
+        })
+    })
+})
+
+describe('Gets all users your friends with', ()=>{
+    test('200 - Gets all users', ()=>{
+        return request(app)
+        .get('/api/friends/JPrince/accepted')
+        .expect(200)
+        .then(({body: {friends}})=>{
+            expect(friends).toHaveLength(1)
+            friends.forEach(friend => {
+                expect(friend).toMatchObject({
+                    id: 1,
+                    senderId: 1,
+                    recieverId: 3,
+                    invite: true,
+                    inviteAccepted: true
+                })
+            })
+        })
+    })
+    test('400 - Incorrect Data Type', ()=>{
+        return request(app)
+        .get('/api/friends/1/accepted')
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+    test('404 - No users found', ()=>{
+        return request(app)
+        .get('/api/friends/scodia619/accepted')
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe('No users found')
         })
     })
 })

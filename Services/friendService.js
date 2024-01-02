@@ -1,4 +1,4 @@
-const { selectInviteByUsers, postInvite, selectInvitesByUser, patchAcceptInvite } = require("../Repositories/friendRepositroy");
+const { selectInviteByUsers, postInvite, selectInvitesByUser, patchAcceptInvite, selectAcceptedFriends } = require("../Repositories/friendRepositroy");
 const { selectUsersByUsername } = require("../Repositories/userRepository");
 const { missingDataError, incorrectDataError, noUserError, inviteExistsError, noInvitesError } = require("../errorVariables")
 
@@ -121,6 +121,25 @@ exports.updateInvite = (req, res, next) => {
             throw noInvitesError
         }
         return patchAcceptInvite(friends.id, inviteAccepted)
+    }).then((friends)=>{
+        res.status(200).send({friends})
+    }).catch(err => {
+        next(err)
+    })
+}
+
+exports.getAcceptedFriends = (req, res, next) => {
+    const {username} = req.params
+
+    if(!isNaN(parseInt(username))){
+        throw incorrectDataError
+    }
+
+    selectUsersByUsername(username).then((users)=>{
+        if(!users){
+            throw noUserError
+        }
+        return selectAcceptedFriends(users.id)
     }).then((friends)=>{
         res.status(200).send({friends})
     }).catch(err => {
