@@ -1,4 +1,5 @@
 const commentRouter = require('./commentRouter');
+const friendRouter = require('./friendRouter');
 const goalRouter = require('./goalRouter');
 const habitRouter = require('./habitRouter');
 const postRouter = require('./postRouter');
@@ -13,5 +14,6 @@ apiRouter.use('/topics', topicRouter)
 apiRouter.use('/comments', commentRouter)
 apiRouter.use('/goals', goalRouter)
 apiRouter.use('/habits', habitRouter)
+apiRouter.use('/friends', friendRouter)
 
 module.exports = apiRouter;

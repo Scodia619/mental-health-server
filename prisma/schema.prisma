@@ -20,6 +20,8 @@ model User{
   posts Posts[]
   comments PostComments[]
   goals UserGoals[]
+  Sender  Friends[] @relation("Sender")
+  Reciever  Friends[] @relation("Reciever")
 }
 
 model Topic{
@@ -89,4 +91,17 @@ model UserGoals{
   time_period String
   created_at DateTime     @default(now())
   updated_at DateTime     @default(now())
+}
+
+model Friends {
+  id               Int      @id @default(autoincrement())
+  senderId        Int
+  recieverId        Int
+  invite           Boolean  @default(true)
+  inviteAccepted   Boolean  @default(false)
+
+  Sender         User     @relation("Sender", fields: [senderId], references: [id])
+  Reciever          User     @relation("Reciever", fields: [recieverId], references: [id])
+
+  @@unique([senderId, recieverId])
 }

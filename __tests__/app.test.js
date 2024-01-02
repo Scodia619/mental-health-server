@@ -831,3 +831,117 @@ describe('Posts a new habit', ()=>{
         })
     })
 })
+
+describe('Gets friend request by users', ()=>{
+    test('200 - Gets a friend invite', ()=>{
+        return request(app)
+        .get('/api/friends?sender=JDoe&reciever=JPrince')
+        .expect(200)
+        .then(({body: {friends}})=>{
+            expect(friends).toMatchObject({
+                id: 1,
+                senderId: 1,
+                recieverId: 3,
+                invite: true,
+                inviteAccepted: false
+            })
+        })
+    })
+    test('400 - Missing Data', ()=>{
+        return request(app)
+        .get('/api/friends?sender=JDoe')
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Missing Data')
+        })
+    })
+    test('400 - Incorrect Data Type', ()=> {
+        return request(app)
+        .get('/api/friends?sender=1&reciever=1')
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+    test('404 - User not found', ()=>{
+        return request(app)
+        .get('/api/friends?sender=scodia619&reciever=JDoe')
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe('No users found')
+        })
+    })
+})
+
+describe('Sends a request to be friends with a user', ()=>{
+    test('201 - Posts a new request', ()=>{
+        const friendData = {
+            sender: 'JDoe',
+            reciever: 'JSmith'
+        }
+        return request(app)
+        .post('/api/friends')
+        .send(friendData)
+        .expect(201)
+        .then(({body: {friends}})=>{
+            expect(friends).toMatchObject({
+                id: 2,
+                senderId: 1,
+                recieverId: 2,
+                invite: true,
+                inviteAccepted: false
+            })
+        })
+    })
+    test('400 - Missing Data', ()=>{
+        const friendData = {
+            sender: 'JDoe'
+        }
+        return request(app)
+        .post('/api/friends')
+        .send(friendData)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Missing Data')
+        })
+    })
+    test('400 - Incorrect Data Type', ()=>{
+        const friendData = {
+            sender: 1,
+            reciever: 'JSmith'
+        }
+        return request(app)
+        .post('/api/friends')
+        .send(friendData)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+    test('404 - User doesnt exist', ()=>{
+        const friendData = {
+            sender: 'Scodia619',
+            reciever: 'JDoe'
+        }
+        return request(app)
+        .post('/api/friends')
+        .send(friendData)
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe('No users found')
+        })
+    })
+    test('400 - Invite already sent', ()=>{
+        const friendData = {
+            sender: 'JDoe',
+            reciever: 'JPrince'
+        }
+        return request(app)
+        .post('/api/friends')
+        .send(friendData)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Invite already sent')
+        })
+    })
+})
