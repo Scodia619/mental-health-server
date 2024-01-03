@@ -1089,7 +1089,7 @@ describe('Gets all users your friends with', ()=>{
     })
 })
 
-describe.only('Getting All Resources', ()=>{
+describe('Getting All Resources', ()=>{
     test('200 - Gets all resources', ()=>{
         return request(app)
         .get('/api/resources')
@@ -1108,6 +1108,46 @@ describe.only('Getting All Resources', ()=>{
                     description: expect.any(String)
                 })
             })
+        })
+    })
+})
+
+describe('Gets all resource relating to a topic', ()=>{
+    test('200 - Gets all resources for the topic', ()=>{
+        return request(app)
+        .get('/api/resources/Science')
+        .expect(200)
+        .then(({body: {resources}})=>{
+            expect(resources).toHaveLength(1)
+            console.log(resources)
+            resources.forEach(({resource})=>{
+                expect(resource).toMatchObject({
+                    resource_id: 2,
+                    posterId: 2,
+                    status: true,
+                    reviewerId: 3,
+                    url: 'https://example.com/resource2',
+                    image_url: 'https://example.com/images/resource2.jpg',
+                    name: 'Resource 2',
+                    description: 'Description of Resource 2'
+                })
+            })
+        })
+    })
+    test('400 - Incorrect Data Type', ()=>{
+        return request(app)
+        .get('/api/resources/1')
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+    test('404 - No topic found', ()=>{
+        return request(app)
+        .get('/api/resources/banana')
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe('No topics found')
         })
     })
 })
