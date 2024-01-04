@@ -1151,3 +1151,34 @@ describe('Gets all resource relating to a topic', ()=>{
         })
     })
 })
+
+describe.only('Gets all resources based on status true', ()=>{
+    test('200 - Gets all resources for a topic', ()=>{
+        return request(app)
+        .get('/api/resources?status=true')
+        .expect(200)
+        .then(({body: {resources}})=>{
+            expect(resources).toHaveLength(2)
+            resources.forEach(resource=>{
+                expect(resource).toMatchObject({
+                    resource_id: expect.any(Number),
+                    posterId: expect.any(Number),
+                    reviewerId: expect.any(Number),
+                    status: true,
+                    url: expect.any(String),
+                    name: expect.any(String),
+                    image_url: expect.any(String),
+                    description: expect.any(String)
+                })
+            })
+        })
+    })
+    test('400 - Incorrect Data Type', ()=>{
+        return request(app)
+        .get('/api/resources?status=1')
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+})

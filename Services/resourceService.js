@@ -3,7 +3,11 @@ const { selectTopicByName } = require("../Repositories/topicRepository")
 const { noTopicsError, incorrectDataError } = require("../errorVariables")
 
 exports.getAllResources = (req, res, next) => {
-    selectAllResources().then((resources)=>{
+    const {status} = req.query
+    if(status !== 'false' && status !== 'true'){
+        throw incorrectDataError
+    }
+    selectAllResources(Boolean(status)).then((resources)=>{
         res.status(200).send({resources})
     })
 }
