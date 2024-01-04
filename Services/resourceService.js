@@ -4,18 +4,19 @@ const { noTopicsError, incorrectDataError } = require("../errorVariables")
 
 exports.getAllResources = (req, res, next) => {
     const {status} = req.query
-    if(status !== 'false' && status !== 'true'){
+    if(status !== 'false' && status !== 'true' && status){
         throw incorrectDataError
     }
-    selectAllResources(Boolean(status)).then((resources)=>{
+    selectAllResources(status).then((resources)=>{
         res.status(200).send({resources})
     })
 }
 
 exports.getResourcesByTopic = (req, res, next) => {
     const {topic} = req.params
+    const {status} = req.query
 
-    if(!isNaN(parseInt(topic)) && topic){
+    if(!isNaN(parseInt(topic)) && topic || (status !== 'false' && status !== 'true' && status)){
         throw incorrectDataError
     }
 
@@ -23,7 +24,7 @@ exports.getResourcesByTopic = (req, res, next) => {
         if(!topics && topic){
             throw noTopicsError
         }
-        return selectResourcesByTopic(topics.id)
+        return selectResourcesByTopic(topics.id, status)
     }).then((resources)=>{
         res.status(200).send({resources})
     }).catch(err => {

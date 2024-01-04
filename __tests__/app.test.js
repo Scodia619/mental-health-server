@@ -1115,11 +1115,10 @@ describe('Getting All Resources', ()=>{
 describe('Gets all resource relating to a topic', ()=>{
     test('200 - Gets all resources for the topic', ()=>{
         return request(app)
-        .get('/api/resources/Science')
+        .get('/api/resources/Technology')
         .expect(200)
         .then(({body: {resources}})=>{
             expect(resources).toHaveLength(1)
-            console.log(resources)
             resources.forEach(({resource})=>{
                 expect(resource).toMatchObject({
                     resource_id: 2,
@@ -1152,7 +1151,7 @@ describe('Gets all resource relating to a topic', ()=>{
     })
 })
 
-describe.only('Gets all resources based on status true', ()=>{
+describe('Gets all resources based on status true', ()=>{
     test('200 - Gets all resources for a topic', ()=>{
         return request(app)
         .get('/api/resources?status=true')
@@ -1176,6 +1175,37 @@ describe.only('Gets all resources based on status true', ()=>{
     test('400 - Incorrect Data Type', ()=>{
         return request(app)
         .get('/api/resources?status=1')
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+})
+
+describe('Gets status true by topic', ()=>{
+    test('200 - gets all reviewed Topics', ()=>{
+        return request(app)
+        .get('/api/resources/Technology?status=true')
+        .expect(200)
+        .then(({body: {resources}})=>{
+            expect(resources).toHaveLength(1)
+            resources.forEach(({resource})=>{
+                expect(resource).toMatchObject({
+                    resource_id: 2,
+                    posterId: 2,
+                    status: true,
+                    reviewerId: 3,
+                    url: 'https://example.com/resource2',
+                    image_url: 'https://example.com/images/resource2.jpg',
+                    name: 'Resource 2',
+                    description: 'Description of Resource 2'
+                })
+            })
+        })
+    })
+    test('400 - Incorrect Data Type', ()=>{
+        return request(app)
+        .get('/api/resources/Science?status=1')
         .expect(400)
         .then(({body})=>{
             expect(body.msg).toBe('Incorrect Data Type')

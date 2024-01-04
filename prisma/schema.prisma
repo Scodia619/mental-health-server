@@ -128,6 +128,6 @@ model ResourceTopics{
   resource_id Int
   topic_id Int
 
-  topic Topic @relation(fields: [resource_id], references: [id])
-  resource Resources @relation(fields: [topic_id], references: [resource_id])
+  topic Topic @relation(fields: [topic_id], references: [id])
+  resource Resources @relation(fields: [resource_id], references: [resource_id])
 }
