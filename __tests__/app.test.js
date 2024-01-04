@@ -1212,3 +1212,99 @@ describe('Gets status true by topic', ()=>{
         })
     })
 })
+
+describe('Posting a new resource', ()=>{
+    test('201 - Posts and returns resource', ()=>{
+        const postData = {
+            posterId: 'JDoe',
+            url: 'https:example.com/sh',
+            name: 'Good Samaritans',
+            image_url: 'https:example.com/images/sh',
+            description: '24/7 Phone help',
+            topic: 'Science'
+        }
+        return request(app)
+        .post('/api/resources')
+        .send(postData)
+        .expect(201)
+        .then(({body: {resources}})=>{
+            expect(resources).toMatchObject({
+                resource_id: 3,
+                posterId: 1,
+                reviewerId: null,
+                url: 'https:example.com/sh',
+            name: 'Good Samaritans',
+            image_url: 'https:example.com/images/sh',
+            description: '24/7 Phone help',
+            status: false
+            })
+        })
+    })
+    test('400 - Missing Data',()=>{
+        const postData = {
+            url: 'https:example.com/sh',
+            name: 'Good Samaritans',
+            image_url: 'https:example.com/images/sh',
+            description: '24/7 Phone help',
+            topic: 'Science'
+        }
+        return request(app)
+        .post('/api/resources')
+        .send(postData)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Missing Data')
+        })
+    })
+    test('400 - Incorrect Data Type', ()=>{
+        const postData = {
+            posterId: 1,
+            url: 'https:example.com/sh',
+            name: 'Good Samaritans',
+            image_url: 'https:example.com/images/sh',
+            description: '24/7 Phone help',
+            topic: 'Science'
+        }
+        return request(app)
+        .post('/api/resources')
+        .send(postData)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+    test('404 - User not found', ()=>{
+        const postData = {
+            posterId: 'Scodia619',
+            url: 'https:example.com/sh',
+            name: 'Good Samaritans',
+            image_url: 'https:example.com/images/sh',
+            description: '24/7 Phone help',
+            topic: 'Science'
+        }
+        return request(app)
+        .post('/api/resources')
+        .send(postData)
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe('No users found')
+        })
+    })
+    test('404 - Topic not found', ()=>{
+        const postData = {
+            posterId: 'JDoe',
+            url: 'https:example.com/sh',
+            name: 'Good Samaritans',
+            image_url: 'https:example.com/images/sh',
+            description: '24/7 Phone help',
+            topic: 'Moody'
+        }
+        return request(app)
+        .post('/api/resources')
+        .send(postData)
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe('No topics found')
+        })
+    })
+})

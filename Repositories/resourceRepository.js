@@ -31,3 +31,17 @@ exports.selectResourcesByTopic = async (topic_id, status) => {
 
       return resources
 }
+
+exports.postResource = async (postData) => {
+    const resources = await prisma.resources.create({
+        data: postData
+    })
+    return resources
+}
+
+exports.postResourceTopic = async (resource_id, topic_id) => {
+    const newTopic  = await prisma.resourceTopics.create({
+        data: {resource_id, topic_id}
+    })
+    return newTopic
+}
