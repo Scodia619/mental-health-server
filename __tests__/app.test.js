@@ -1119,12 +1119,11 @@ describe('Gets all resource relating to a topic', ()=>{
         .expect(200)
         .then(({body: {resources}})=>{
             expect(resources).toHaveLength(1)
-            console.log(resources)
             resources.forEach(({resource})=>{
                 expect(resource).toMatchObject({
                     resource_id: 2,
                     posterId: 2,
-                    status: true,
+                    status: expect.any(Boolean),
                     reviewerId: 3,
                     url: 'https://example.com/resource2',
                     image_url: 'https://example.com/images/resource2.jpg',
@@ -1150,4 +1149,39 @@ describe('Gets all resource relating to a topic', ()=>{
             expect(body.msg).toBe('No topics found')
         })
     })
+})
+
+describe('Patching a resource by resource id', ()=>{
+  test('200 - Patches the resource by id', ()=>{
+    return request(app)
+    .patch('/api/resources/approve/2')
+    .expect(200)
+    .then(({body: {resources}})=> {
+      expect(resources).toMatchObject({
+            posterId: 2, // User ID of another poster
+            reviewerId: 3, // User ID of another reviewer
+            status: true,
+            url: 'https://example.com/resource2',
+            name: 'Resource 2',
+            image_url: 'https://example.com/images/resource2.jpg',
+            description: 'Description of Resource 2',
+      })
+    })
+  })
+  test('400 - Incorrect Data Type', ()=>{
+    return request(app)
+    .patch('/api/resources/approve/banana')
+    .expect(400)
+    .then(({body})=>{
+      expect(body.msg).toBe('Incorrect Data Type')
+    })
+  })
+  test('404 - Resource Not Found', ()=>{
+    return request(app)
+    .patch('/api/resources/approve/5')
+    .expect(404)
+    .then(({body})=>{
+      expect(body.msg).toBe('Resource not found')
+    })
+  })
 })

@@ -175,7 +175,7 @@ const seed = async() => {
           {
             posterId: 2, // User ID of another poster
             reviewerId: 3, // User ID of another reviewer
-            status: true,
+            status: false,
             url: 'https://example.com/resource2',
             name: 'Resource 2',
             image_url: 'https://example.com/images/resource2.jpg',

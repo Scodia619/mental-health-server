@@ -50,6 +50,10 @@ const noInvitesError = new Error();
 noInvitesError.status = 404;
 noInvitesError.msg = 'No invites found'
 
+const noResourcesError = new Error();
+noResourcesError.status = 404;
+noResourcesError.msg = 'Resource not found'
+
 module.exports = {
   noUserError,
   missingDataError,
@@ -63,5 +67,6 @@ module.exports = {
   noHabitError,
   habitExistsError,
   inviteExistsError,
-  noInvitesError
+  noInvitesError,
+  noResourcesError
 };
