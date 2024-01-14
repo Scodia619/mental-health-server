@@ -1115,7 +1115,7 @@ describe('Getting All Resources', ()=>{
 describe('Gets all resource relating to a topic', ()=>{
     test('200 - Gets all resources for the topic', ()=>{
         return request(app)
-        .get('/api/resources/Science')
+        .get('/api/resources/Technology')
         .expect(200)
         .then(({body: {resources}})=>{
             expect(resources).toHaveLength(1)
@@ -1184,4 +1184,166 @@ describe('Patching a resource by resource id', ()=>{
       expect(body.msg).toBe('Resource not found')
     })
   })
+})
+describe('Gets all resources based on status true', ()=>{
+    test('200 - Gets all resources for a topic', ()=>{
+        return request(app)
+        .get('/api/resources?status=true')
+        .expect(200)
+        .then(({body: {resources}})=>{
+            expect(resources).toHaveLength(1)
+            resources.forEach(resource=>{
+                expect(resource).toMatchObject({
+                    resource_id: expect.any(Number),
+                    posterId: expect.any(Number),
+                    reviewerId: expect.any(Number),
+                    status: true,
+                    url: expect.any(String),
+                    name: expect.any(String),
+                    image_url: expect.any(String),
+                    description: expect.any(String)
+                })
+            })
+        })
+    })
+    test('400 - Incorrect Data Type', ()=>{
+        return request(app)
+        .get('/api/resources?status=1')
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+})
+
+describe('Gets status true by topic', ()=>{
+    test('200 - gets all reviewed Topics', ()=>{
+        return request(app)
+        .get('/api/resources/Science?status=true')
+        .expect(200)
+        .then(({body: {resources}})=>{
+            expect(resources).toHaveLength(1)
+            resources.forEach(({resource})=>{
+                expect(resource).toMatchObject({
+                    resource_id: 1,
+                    posterId: 1,
+                    status: true,
+                    reviewerId: 2,
+                    url: 'https://example.com/resource1',
+                    image_url: 'https://example.com/images/resource1.jpg',
+                    name: 'Resource 1',
+                    description: 'Description of Resource 1'
+                })
+            })
+        })
+    })
+    test('400 - Incorrect Data Type', ()=>{
+        return request(app)
+        .get('/api/resources/Science?status=1')
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+})
+
+describe('Posting a new resource', ()=>{
+    test('201 - Posts and returns resource', ()=>{
+        const postData = {
+            posterId: 'JDoe',
+            reviewer_id: 1,
+            url: 'https:example.com/sh',
+            name: 'Good Samaritans',
+            image_url: 'https:example.com/images/sh',
+            description: '24/7 Phone help',
+            topic: 'Science'
+        }
+        return request(app)
+        .post('/api/resources')
+        .send(postData)
+        .expect(201)
+        .then(({body: {resources}})=>{
+            expect(resources).toMatchObject({
+                resource_id: 3,
+                posterId: 1,
+                reviewerId: 1,
+                url: 'https:example.com/sh',
+            name: 'Good Samaritans',
+            image_url: 'https:example.com/images/sh',
+            description: '24/7 Phone help',
+            status: false
+            })
+        })
+    })
+    test('400 - Missing Data',()=>{
+        const postData = {
+            url: 'https:example.com/sh',
+            name: 'Good Samaritans',
+            reviewer_id: 1,
+            image_url: 'https:example.com/images/sh',
+            description: '24/7 Phone help',
+            topic: 'Science'
+        }
+        return request(app)
+        .post('/api/resources')
+        .send(postData)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Missing Data')
+        })
+    })
+    test('400 - Incorrect Data Type', ()=>{
+        const postData = {
+            posterId: 1,
+            reviewer_id: 1,
+            url: 'https:example.com/sh',
+            name: 'Good Samaritans',
+            image_url: 'https:example.com/images/sh',
+            description: '24/7 Phone help',
+            topic: 'Science'
+        }
+        return request(app)
+        .post('/api/resources')
+        .send(postData)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.msg).toBe('Incorrect Data Type')
+        })
+    })
+    test('404 - User not found', ()=>{
+        const postData = {
+            posterId: 'Scodia619',
+            url: 'https:example.com/sh',
+            reviewer_id: 1,
+            name: 'Good Samaritans',
+            image_url: 'https:example.com/images/sh',
+            description: '24/7 Phone help',
+            topic: 'Science'
+        }
+        return request(app)
+        .post('/api/resources')
+        .send(postData)
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe('No users found')
+        })
+    })
+    test('404 - Topic not found', ()=>{
+        const postData = {
+            posterId: 'JDoe',
+            reviewer_id: 1,
+            url: 'https:example.com/sh',
+            name: 'Good Samaritans',
+            image_url: 'https:example.com/images/sh',
+            description: '24/7 Phone help',
+            topic: 'Moody'
+        }
+        return request(app)
+        .post('/api/resources')
+        .send(postData)
+        .expect(404)
+        .then(({body})=>{
+            expect(body.msg).toBe('No topics found')
+        })
+    })
 })
