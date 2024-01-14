@@ -421,8 +421,8 @@ describe("Post a new topic", () => {
 describe("Posting a new post", () => {
   test("201 - Creates a new Post", () => {
     const postData = {
-      username: 'JDoe',
-      is_private: 'false',
+      username: "JDoe",
+      is_private: "false",
       title: "I want to kill myself",
       topic: "Self Harm",
       content: "I have thought about killing myself",
@@ -438,912 +438,956 @@ describe("Posting a new post", () => {
           is_private: false,
           title: "I want to kill myself",
           content: "I have thought about killing myself",
-          created_at: expect.any(String)
+          created_at: expect.any(String),
+        });
+      });
+  });
+  test("400 - Missing Data", () => {
+    const postData = {
+      username: "JDoe",
+      is_private: false,
+      title: "I want to kill myself",
+      content: "I have thought about killing myself",
+    };
+    return request(app)
+      .post("/api/posts")
+      .send(postData)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing Data");
+      });
+  });
+  test("400 - Incorrect Data Type", () => {
+    const postData = {
+      username: 1, // Sending a number for username
+      is_private: "false", // Sending a string for is_private instead of a boolean
+      title: "I want to kill myself",
+      topic: "Self Harm",
+      content: "I have thought about killing myself",
+    };
+    return request(app)
+      .post("/api/posts")
+      .send(postData)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Incorrect Data Type");
+      });
+  });
+  test("404 - User doesnt exist", () => {
+    const postData = {
+      username: "scodia619",
+      is_private: "false",
+      title: "I want to kill myself",
+      topic: "Self Harm",
+      content: "I have thought about killing myself",
+    };
+    return request(app)
+      .post("/api/posts")
+      .send(postData)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No users found");
+      });
+  });
+  test("404 - Topic doesnt exist", () => {
+    const postData = {
+      username: "JDoe",
+      is_private: "false",
+      title: "I want to kill myself",
+      topic: "Gif Gaf",
+      content: "I have thought about killing myself",
+    };
+    return request(app)
+      .post("/api/posts")
+      .send(postData)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No topics found");
+      });
+  });
+});
+
+describe("Gets all posts by user", () => {
+  test("200 - gets all posts by JDoe", () => {
+    return request(app)
+      .get("/api/posts?username=JDoe")
+      .expect(200)
+      .then(({ body: { posts } }) => {
+        expect(posts).toHaveLength(1);
+        expect(posts[0]).toMatchObject({
+          post_id: 1,
+          user_id: 1,
+          is_private: false,
+          title: "Introduction to Prisma",
+          content: "Prisma is a modern database toolkit...",
+          created_at: expect.any(String),
+        });
+      });
+  });
+  test("400 - Incorrect Data Type", () => {
+    return request(app)
+      .get("/api/posts?username=1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Incorrect Data Type");
+      });
+  });
+  test("404 - No Users", () => {
+    return request(app)
+      .get("/api/posts?username=scodia619")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No users found");
+      });
+  });
+});
+
+describe("Gets all posts by user topics", () => {
+  test("200 - gets all posts by JDoe", () => {
+    return request(app)
+      .get("/api/posts/Technology?username=JDoe")
+      .expect(200)
+      .then(({ body: { posts } }) => {
+        expect(posts).toHaveLength(1);
+        posts.forEach(({ post }) => {
+          expect(post).toMatchObject({
+            post_id: 1,
+            user_id: 1,
+            is_private: false,
+            title: "Introduction to Prisma",
+            content: "Prisma is a modern database toolkit...",
+            created_at: expect.any(String),
+          });
+        });
+      });
+  });
+  test("400 - Incorrect Data Type", () => {
+    return request(app)
+      .get("/api/posts/Technology?username=1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Incorrect Data Type");
+      });
+  });
+  test("404 - No Users", () => {
+    return request(app)
+      .get("/api/posts/Technology?username=scodia619")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No users found");
+      });
+  });
+});
+
+describe("Gets all comments", () => {
+  test("200 - gets all comments", () => {
+    return request(app)
+      .get("/api/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).toHaveLength(2);
+        comments.forEach((comment) => {
+          expect(comment).toMatchObject({
+            comment_id: expect.any(Number),
+            post_id: expect.any(Number),
+            user_id: expect.any(Number),
+            comment: expect.any(String),
+          });
+        });
+      });
+  });
+});
+
+describe("Gets all comments by post", () => {
+  test("200 - Gets all comments by post", () => {
+    return request(app)
+      .get("/api/comments/1")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).toHaveLength(1);
+        comments.forEach((comment) => {
+          expect(comment).toMatchObject({
+            comment_id: 1,
+            post_id: 1,
+            user_id: 2,
+            comment: "Great explanation of Prisma!",
+          });
+        });
+      });
+  });
+  test("400 - Incorrect Data Type", () => {
+    return request(app)
+      .get("/api/comments/banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Incorrect Data Type");
+      });
+  });
+});
+
+describe("Posting a comment", () => {
+  test("201 - Create a comment", () => {
+    const commentData = {
+      user_id: 1,
+      comment: "Prisma Is Awesome !!!",
+    };
+    return request(app)
+      .post("/api/comments/1")
+      .send(commentData)
+      .expect(201)
+      .then(({ body: { comments } }) => {
+        expect(comments).toMatchObject({
+          comment_id: 3,
+          post_id: 1,
+          user_id: 1,
+          comment: "Prisma Is Awesome !!!",
+        });
+      });
+  });
+  test("400 - Missing Data", () => {
+    const commentData = {
+      comment: "Prisma Is Awesome !!!",
+    };
+    return request(app)
+      .post("/api/comments/1")
+      .send(commentData)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing Data");
+      });
+  });
+  test("400 - Incorrect Data Type", () => {
+    const commentData = {
+      user_id: "String",
+      comment: "Prisma Is Awesome !!!",
+    };
+    return request(app)
+      .post("/api/comments/1")
+      .send(commentData)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Incorrect Data Type");
+      });
+  });
+  test("404 Post doesnt Exist", () => {
+    const commentData = {
+      user_id: 1,
+      comment: "Prisma Is Awesome !!!",
+    };
+    return request(app)
+      .post("/api/comments/999")
+      .send(commentData)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No posts found");
+      });
+  });
+});
+
+describe("Gets goals by user", () => {
+  test("200 - gets the goals by a user", () => {
+    return request(app)
+      .get("/api/goals?username=JDoe")
+      .expect(200)
+      .then(({ body: { goals } }) => {
+        expect(goals).toHaveLength(1);
+        goals.forEach((goal) => {
+          expect(goal).toMatchObject({
+            goal_id: 1,
+            user_id: 1,
+            habit_id: 1,
+            end_date: "2024-12-31",
+            goal_amount: "Maintain a balanced diet",
+            unit_id: 1,
+            time_period: "Daily",
+          });
+        });
+      });
+  });
+  test("404 - user doesnt exist", () => {
+    return request(app)
+      .get("/api/goals?username=scodia619")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No users found");
+      });
+  });
+  test("400 - Incorrect Data Type", () => {
+    return request(app)
+      .get("/api/goals?username=1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Incorrect Data Type");
+      });
+  });
+});
+
+describe("Gets all habits", () => {
+  test("200 - Gets all habits", () => {
+    return request(app)
+      .get("/api/habits")
+      .expect(200)
+      .then(({ body: { habits } }) => {
+        expect(habits).toHaveLength(2);
+        habits.forEach((habit) => {
+          expect(habit).toMatchObject({
+            habit_id: expect.any(Number),
+            name: expect.any(String),
+            description: expect.any(String),
+            created_at: expect.any(String),
+          });
+        });
+      });
+  });
+});
+
+describe("Gets habits by name", () => {
+  test("200 - Gets a habit by name", () => {
+    return request(app)
+      .get("/api/habits/Running")
+      .expect(200)
+      .then(({ body: { habits } }) => {
+        expect(habits).toMatchObject({
+          habit_id: 2,
+          name: "Running",
+          description: "Run 5 kilometers every day",
+          created_at: expect.any(String),
+        });
+      });
+  });
+  test("404 - Habit not found", () => {
+    return request(app)
+      .get("/api/habits/Alcohol")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No habits found");
+      });
+  });
+  test("400 - Incorrect Data Type", () => {
+    return request(app)
+      .get("/api/habits/1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Incorrect Data Type");
+      });
+  });
+});
+
+describe("Posts a new habit", () => {
+  test("201 - Posts a new habit", () => {
+    const habitData = {
+      name: "Alcohol",
+      description: "Drinking Too Much",
+    };
+    return request(app)
+      .post("/api/habits")
+      .send(habitData)
+      .expect(201)
+      .then(({ body: { habits } }) => {
+        expect(habits).toMatchObject({
+          habit_id: 3,
+          name: "Alcohol",
+          description: "Drinking Too Much",
+          created_at: expect.any(String),
+        });
+      });
+  });
+  test("400 - Missing Data", () => {
+    const habitData = {
+      name: "Self Harm",
+    };
+    return request(app)
+      .post("/api/habits")
+      .send(habitData)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing Data");
+      });
+  });
+  test("400 - Incorrect Data Type", () => {
+    const habitData = {
+      name: 1,
+      description: 1,
+    };
+    return request(app)
+      .post("/api/habits")
+      .send(habitData)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Incorrect Data Type");
+      });
+  });
+  test("400 - Habit already exists", () => {
+    const habitData = {
+      name: "Running",
+      description: "Running",
+    };
+    return request(app)
+      .post("/api/habits")
+      .send(habitData)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Habit already exists");
+      });
+  });
+});
+
+describe("Gets friend request by users", () => {
+  test("200 - Gets a friend invite", () => {
+    return request(app)
+      .get("/api/friends?sender=JDoe&reciever=JPrince")
+      .expect(200)
+      .then(({ body: { friends } }) => {
+        expect(friends).toMatchObject({
+          id: 1,
+          senderId: 1,
+          recieverId: 3,
+          invite: true,
+          inviteAccepted: true,
+        });
+      });
+  });
+  test("400 - Missing Data", () => {
+    return request(app)
+      .get("/api/friends?sender=JDoe")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing Data");
+      });
+  });
+  test("400 - Incorrect Data Type", () => {
+    return request(app)
+      .get("/api/friends?sender=1&reciever=1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Incorrect Data Type");
+      });
+  });
+  test("404 - User not found", () => {
+    return request(app)
+      .get("/api/friends?sender=scodia619&reciever=JDoe")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No users found");
+      });
+  });
+});
+
+describe("Sends a request to be friends with a user", () => {
+  test("201 - Posts a new request", () => {
+    const friendData = {
+      sender: "JDoe",
+      reciever: "JSmith",
+    };
+    return request(app)
+      .post("/api/friends")
+      .send(friendData)
+      .expect(201)
+      .then(({ body: { friends } }) => {
+        expect(friends).toMatchObject({
+          id: 2,
+          senderId: 1,
+          recieverId: 2,
+          invite: true,
+          inviteAccepted: false,
+        });
+      });
+  });
+  test("400 - Missing Data", () => {
+    const friendData = {
+      sender: "JDoe",
+    };
+    return request(app)
+      .post("/api/friends")
+      .send(friendData)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing Data");
+      });
+  });
+  test("400 - Incorrect Data Type", () => {
+    const friendData = {
+      sender: 1,
+      reciever: "JSmith",
+    };
+    return request(app)
+      .post("/api/friends")
+      .send(friendData)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Incorrect Data Type");
+      });
+  });
+  test("404 - User doesnt exist", () => {
+    const friendData = {
+      sender: "Scodia619",
+      reciever: "JDoe",
+    };
+    return request(app)
+      .post("/api/friends")
+      .send(friendData)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No users found");
+      });
+  });
+  test("400 - Invite already sent", () => {
+    const friendData = {
+      sender: "JDoe",
+      reciever: "JPrince",
+    };
+    return request(app)
+      .post("/api/friends")
+      .send(friendData)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invite already sent");
+      });
+  });
+});
+
+describe("Gets a users friend Invites", () => {
+  test("200 - Get all friend Requests", () => {
+    return request(app)
+      .get("/api/friends/JPrince")
+      .expect(200)
+      .then(({ body: { friends } }) => {
+        expect(friends).toHaveLength(1);
+        friends.forEach((invite) => {
+          expect(invite).toMatchObject({
+            id: 1,
+            senderId: 1,
+            recieverId: 3,
+            invite: true,
+            inviteAccepted: true,
+          });
+        });
+      });
+  });
+  test("400 - Incorrect Data Type", () => {
+    return request(app)
+      .get("/api/friends/1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Incorrect Data Type");
+      });
+  });
+  test("404 - User doesnt exist", () => {
+    return request(app)
+      .get("/api/friends/scodia619")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No users found");
+      });
+  });
+});
+
+describe("Patches the invite to accept the friend", () => {
+  test("200 - Updates the invite", () => {
+    const inviteData = {
+      inviteAccepted: true,
+      sender: "JDoe",
+    };
+    return request(app)
+      .patch("/api/friends/JPrince")
+      .send(inviteData)
+      .expect(200)
+      .then(({ body: { friends } }) => {
+        expect(friends).toMatchObject({
+          id: 1,
+          senderId: 1,
+          recieverId: 3,
+          invite: true,
+          inviteAccepted: true,
+        });
+      });
+  });
+  test("400 - Missing Data", () => {
+    const inviteData = {};
+    return request(app)
+      .patch("/api/friends/JPrince")
+      .send(inviteData)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing Data");
+      });
+  });
+  test("400 - Incorrect Data Type", () => {
+    const inviteData = {
+      inviteAccepted: 1,
+      sender: "JDoe",
+    };
+    return request(app)
+      .patch("/api/friends/JDoe")
+      .send(inviteData)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Incorrect Data Type");
+      });
+  });
+  test("404 - User not found", () => {
+    const inviteData = {
+      inviteAccepted: true,
+      sender: "JDoe",
+    };
+    return request(app)
+      .patch("/api/friends/scodia619")
+      .send(inviteData)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No users found");
+      });
+  });
+  test("404 - No invites", () => {
+    const inviteData = {
+      inviteAccepted: true,
+      sender: "JDoe",
+    };
+    return request(app)
+      .patch("/api/friends/JDoe")
+      .send(inviteData)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No invites found");
+      });
+  });
+});
+
+describe("Gets all users your friends with", () => {
+  test("200 - Gets all users", () => {
+    return request(app)
+      .get("/api/friends/JPrince/accepted")
+      .expect(200)
+      .then(({ body: { friends } }) => {
+        expect(friends).toHaveLength(1);
+        friends.forEach((friend) => {
+          expect(friend).toMatchObject({
+            id: 1,
+            senderId: 1,
+            recieverId: 3,
+            invite: true,
+            inviteAccepted: true,
+          });
+        });
+      });
+  });
+  test("400 - Incorrect Data Type", () => {
+    return request(app)
+      .get("/api/friends/1/accepted")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Incorrect Data Type");
+      });
+  });
+  test("404 - No users found", () => {
+    return request(app)
+      .get("/api/friends/scodia619/accepted")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No users found");
+      });
+  });
+});
+
+describe("Getting All Resources", () => {
+  test("200 - Gets all resources", () => {
+    return request(app)
+      .get("/api/resources")
+      .expect(200)
+      .then(({ body: { resources } }) => {
+        expect(resources).toHaveLength(2);
+        resources.forEach((resource) => {
+          expect(resource).toMatchObject({
+            resource_id: expect.any(Number),
+            posterId: expect.any(Number),
+            status: expect.any(Boolean),
+            reviewerId: expect.any(Number),
+            url: expect.any(String),
+            name: expect.any(String),
+            image_url: expect.any(String),
+            description: expect.any(String),
+          });
+        });
+      });
+  });
+});
+
+describe("Gets all resource relating to a topic", () => {
+  test("200 - Gets all resources for the topic", () => {
+    return request(app)
+      .get("/api/resources/Technology")
+      .expect(200)
+      .then(({ body: { resources } }) => {
+        expect(resources).toHaveLength(1);
+        resources.forEach(({ resource }) => {
+          expect(resource).toMatchObject({
+            resource_id: 2,
+            posterId: 2,
+            status: expect.any(Boolean),
+            reviewerId: 3,
+            url: "https://example.com/resource2",
+            image_url: "https://example.com/images/resource2.jpg",
+            name: "Resource 2",
+            description: "Description of Resource 2",
+          });
+        });
+      });
+  });
+  test("400 - Incorrect Data Type", () => {
+    return request(app)
+      .get("/api/resources/1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Incorrect Data Type");
+      });
+  });
+  test("404 - No topic found", () => {
+    return request(app)
+      .get("/api/resources/banana")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No topics found");
+      });
+  });
+});
+
+describe("Patching a resource by resource id", () => {
+  test("200 - Patches the resource by id", () => {
+    return request(app)
+      .patch("/api/resources/approve/2")
+      .expect(200)
+      .then(({ body: { resources } }) => {
+        expect(resources).toMatchObject({
+          posterId: 2, // User ID of another poster
+          reviewerId: 3, // User ID of another reviewer
+          status: true,
+          url: "https://example.com/resource2",
+          name: "Resource 2",
+          image_url: "https://example.com/images/resource2.jpg",
+          description: "Description of Resource 2",
+        });
+      });
+  });
+  test("400 - Incorrect Data Type", () => {
+    return request(app)
+      .patch("/api/resources/approve/banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Incorrect Data Type");
+      });
+  });
+  test("404 - Resource Not Found", () => {
+    return request(app)
+      .patch("/api/resources/approve/5")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Resource not found");
+      });
+  });
+});
+describe("Gets all resources based on status true", () => {
+  test("200 - Gets all resources for a topic", () => {
+    return request(app)
+      .get("/api/resources?status=true")
+      .expect(200)
+      .then(({ body: { resources } }) => {
+        expect(resources).toHaveLength(1);
+        resources.forEach((resource) => {
+          expect(resource).toMatchObject({
+            resource_id: expect.any(Number),
+            posterId: expect.any(Number),
+            reviewerId: expect.any(Number),
+            status: true,
+            url: expect.any(String),
+            name: expect.any(String),
+            image_url: expect.any(String),
+            description: expect.any(String),
+          });
+        });
+      });
+  });
+  test("400 - Incorrect Data Type", () => {
+    return request(app)
+      .get("/api/resources?status=1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Incorrect Data Type");
+      });
+  });
+});
+
+describe("Gets status true by topic", () => {
+  test("200 - gets all reviewed Topics", () => {
+    return request(app)
+      .get("/api/resources/Science?status=true")
+      .expect(200)
+      .then(({ body: { resources } }) => {
+        expect(resources).toHaveLength(1);
+        resources.forEach(({ resource }) => {
+          expect(resource).toMatchObject({
+            resource_id: 1,
+            posterId: 1,
+            status: true,
+            reviewerId: 2,
+            url: "https://example.com/resource1",
+            image_url: "https://example.com/images/resource1.jpg",
+            name: "Resource 1",
+            description: "Description of Resource 1",
+          });
+        });
+      });
+  });
+  test("400 - Incorrect Data Type", () => {
+    return request(app)
+      .get("/api/resources/Science?status=1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Incorrect Data Type");
+      });
+  });
+});
+
+describe("Posting a new resource", () => {
+  test("201 - Posts and returns resource", () => {
+    const postData = {
+      posterId: "JDoe",
+      reviewer_id: 1,
+      url: "https:example.com/sh",
+      name: "Good Samaritans",
+      image_url: "https:example.com/images/sh",
+      description: "24/7 Phone help",
+      topic: "Science",
+    };
+    return request(app)
+      .post("/api/resources")
+      .send(postData)
+      .expect(201)
+      .then(({ body: { resources } }) => {
+        expect(resources).toMatchObject({
+          resource_id: 3,
+          posterId: 1,
+          reviewerId: 1,
+          url: "https:example.com/sh",
+          name: "Good Samaritans",
+          image_url: "https:example.com/images/sh",
+          description: "24/7 Phone help",
+          status: false,
+        });
+      });
+  });
+  test("400 - Missing Data", () => {
+    const postData = {
+      url: "https:example.com/sh",
+      name: "Good Samaritans",
+      reviewer_id: 1,
+      image_url: "https:example.com/images/sh",
+      description: "24/7 Phone help",
+      topic: "Science",
+    };
+    return request(app)
+      .post("/api/resources")
+      .send(postData)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing Data");
+      });
+  });
+  test("400 - Incorrect Data Type", () => {
+    const postData = {
+      posterId: 1,
+      reviewer_id: 1,
+      url: "https:example.com/sh",
+      name: "Good Samaritans",
+      image_url: "https:example.com/images/sh",
+      description: "24/7 Phone help",
+      topic: "Science",
+    };
+    return request(app)
+      .post("/api/resources")
+      .send(postData)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Incorrect Data Type");
+      });
+  });
+  test("404 - User not found", () => {
+    const postData = {
+      posterId: "Scodia619",
+      url: "https:example.com/sh",
+      reviewer_id: 1,
+      name: "Good Samaritans",
+      image_url: "https:example.com/images/sh",
+      description: "24/7 Phone help",
+      topic: "Science",
+    };
+    return request(app)
+      .post("/api/resources")
+      .send(postData)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No users found");
+      });
+  });
+  test("404 - Topic not found", () => {
+    const postData = {
+      posterId: "JDoe",
+      reviewer_id: 1,
+      url: "https:example.com/sh",
+      name: "Good Samaritans",
+      image_url: "https:example.com/images/sh",
+      description: "24/7 Phone help",
+      topic: "Moody",
+    };
+    return request(app)
+      .post("/api/resources")
+      .send(postData)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No topics found");
+      });
+  });
+});
+
+describe("Gets a resource by reviewer Id and status false", () => {
+  test("200 - Gets all resource by reviewer Id and status false", () => {
+    return request(app)
+      .get("/api/resources/approve?reviewerId=3&status=false")
+      .expect(200)
+      .then(({ body: { resources } }) => {
+        expect(resources).toHaveLength(1);
+        expect(resources[0]).toMatchObject({
+          posterId: 2, // User ID of another poster
+          reviewerId: 3, // User ID of another reviewer
+          status: false,
+          url: "https://example.com/resource2",
+          name: "Resource 2",
+          image_url: "https://example.com/images/resource2.jpg",
+          description: "Description of Resource 2",
         });
       });
   });
   test('400 - Missing Data', ()=>{
-    const postData = {
-        username: 'JDoe',
-        is_private: false,
-        title: "I want to kill myself",
-        content: "I have thought about killing myself",
-      };
-      return request(app)
-      .post('/api/posts')
-      .send(postData)
-      .expect(400)
-      .then(({body})=>{
-        expect(body.msg).toBe('Missing Data')
-      })
-  })
-  test('400 - Incorrect Data Type', ()=> {
-    const postData = {
-        username: 1, // Sending a number for username
-        is_private: "false", // Sending a string for is_private instead of a boolean
-        title: "I want to kill myself",
-        topic: "Self Harm",
-        content: "I have thought about killing myself",
-    };
-      return request(app)
-      .post('/api/posts')
-      .send(postData)
-      .expect(400)
-      .then(({body})=>{
-        expect(body.msg).toBe('Incorrect Data Type')
-      })
-  })
-  test('404 - User doesnt exist', ()=>{
-    const postData = {
-        username: 'scodia619',
-        is_private: 'false',
-        title: "I want to kill myself",
-        topic: "Self Harm",
-        content: "I have thought about killing myself",
-      };
-      return request(app)
-      .post('/api/posts')
-      .send(postData)
-      .expect(404)
-      .then(({body})=>{
-        expect(body.msg).toBe('No users found')
-      })
-  })
-  test('404 - Topic doesnt exist', ()=>{
-    const postData = {
-        username: 'JDoe',
-        is_private: 'false',
-        title: "I want to kill myself",
-        topic: "Gif Gaf",
-        content: "I have thought about killing myself",
-      };
-      return request(app)
-      .post('/api/posts')
-      .send(postData)
-      .expect(404)
-      .then(({body})=>{
-        expect(body.msg).toBe('No topics found')
-      })
-  })
-});
-
-describe('Gets all posts by user', ()=>{
-    test('200 - gets all posts by JDoe', ()=>{
-        return request(app)
-        .get('/api/posts?username=JDoe')
-        .expect(200)
-        .then(({body: {posts}})=>{
-            expect(posts).toHaveLength(1)
-            expect(posts[0]).toMatchObject({
-                post_id: 1,
-                user_id: 1,
-                is_private: false,
-                title: "Introduction to Prisma",
-                content: "Prisma is a modern database toolkit...",
-                created_at: expect.any(String),
-            })
-        })
-    })
-    test('400 - Incorrect Data Type', ()=>{
-        return request(app)
-        .get('/api/posts?username=1')
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Incorrect Data Type')
-        })
-    })
-    test('404 - No Users', ()=>{
-        return request(app)
-        .get('/api/posts?username=scodia619')
-        .expect(404)
-        .then(({body})=>{
-            expect(body.msg).toBe('No users found')
-        })
-    })
-})
-
-describe('Gets all posts by user topics', ()=>{
-    test('200 - gets all posts by JDoe', ()=>{
-        return request(app)
-        .get('/api/posts/Technology?username=JDoe')
-        .expect(200)
-        .then(({body: {posts}})=>{
-            expect(posts).toHaveLength(1)
-            posts.forEach(({post})=>{
-                expect(post).toMatchObject({
-                    post_id: 1,
-                    user_id: 1,
-                    is_private: false,
-                    title: "Introduction to Prisma",
-                    content: "Prisma is a modern database toolkit...",
-                    created_at: expect.any(String),
-                })
-            })
-        })
-    })
-    test('400 - Incorrect Data Type', ()=>{
-        return request(app)
-        .get('/api/posts/Technology?username=1')
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Incorrect Data Type')
-        })
-    })
-    test('404 - No Users', ()=>{
-        return request(app)
-        .get('/api/posts/Technology?username=scodia619')
-        .expect(404)
-        .then(({body})=>{
-            expect(body.msg).toBe('No users found')
-        })
-    })
-})
-
-describe('Gets all comments', ()=>{
-    test('200 - gets all comments', ()=>{
-        return request(app)
-        .get('/api/comments')
-        .expect(200)
-        .then(({body: {comments}})=>{
-            expect(comments).toHaveLength(2)
-            comments.forEach(comment => {
-                expect(comment).toMatchObject({
-                    comment_id: expect.any(Number),
-                    post_id: expect.any(Number),
-                    user_id: expect.any(Number),
-                    comment: expect.any(String)
-                })
-            })
-        })
-    })
-})
-
-describe('Gets all comments by post', ()=>{
-    test('200 - Gets all comments by post', ()=>{
-        return request(app)
-        .get('/api/comments/1')
-        .expect(200)
-        .then(({body: {comments}})=>{
-            expect(comments).toHaveLength(1)
-            comments.forEach(comment => {
-                expect(comment).toMatchObject({
-                    comment_id: 1,
-                    post_id: 1,
-                    user_id: 2,
-                    comment: 'Great explanation of Prisma!'
-                })
-            })
-        })
-    })
-    test('400 - Incorrect Data Type', ()=>{
-        return request(app)
-        .get('/api/comments/banana')
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Incorrect Data Type')
-        })
-    })
-})
-
-describe('Posting a comment', ()=>{
-    test('201 - Create a comment',()=>{
-        const commentData = {
-            user_id: 1,
-            comment: 'Prisma Is Awesome !!!'
-        }
-        return request(app)
-        .post('/api/comments/1')
-        .send(commentData)
-        .expect(201)
-        .then(({body: {comments}})=>{
-            expect(comments).toMatchObject({
-                comment_id: 3,
-                post_id: 1,
-                user_id: 1,
-                comment: 'Prisma Is Awesome !!!'
-            })
-        })
-    })
-    test('400 - Missing Data', ()=>{
-        const commentData = {
-            comment: 'Prisma Is Awesome !!!'
-        }
-        return request(app)
-        .post('/api/comments/1')
-        .send(commentData)
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Missing Data')
-        })
-    })
-    test('400 - Incorrect Data Type', ()=>{
-        const commentData = {
-            user_id: 'String',
-            comment: 'Prisma Is Awesome !!!'
-        }
-        return request(app)
-        .post('/api/comments/1')
-        .send(commentData)
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Incorrect Data Type')
-        })
-    })
-    test('404 Post doesnt Exist', ()=>{
-        const commentData = {
-            user_id: 1,
-            comment: 'Prisma Is Awesome !!!'
-        }
-        return request(app)
-        .post('/api/comments/999')
-        .send(commentData)
-        .expect(404)
-        .then(({body})=>{
-            expect(body.msg).toBe('No posts found')
-        })
-    })
-})
-
-describe('Gets goals by user', ()=>{
-    test('200 - gets the goals by a user', ()=>{
-        return request(app)
-        .get('/api/goals?username=JDoe')
-        .expect(200)
-        .then(({body: {goals}})=>{
-            expect(goals).toHaveLength(1)
-            goals.forEach(goal => {
-                expect(goal).toMatchObject({
-                    goal_id: 1,
-                    user_id: 1,
-                    habit_id: 1,
-                    end_date: '2024-12-31',
-                    goal_amount: 'Maintain a balanced diet',
-                    unit_id: 1,
-                    time_period: 'Daily'
-                })
-            })
-        })
-    })
-    test('404 - user doesnt exist', ()=>{
-        return request(app)
-        .get('/api/goals?username=scodia619')
-        .expect(404)
-        .then(({body})=>{
-            expect(body.msg).toBe('No users found')
-        })
-    })
-    test('400 - Incorrect Data Type', ()=>{
-        return request(app)
-        .get('/api/goals?username=1')
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Incorrect Data Type')
-        })
-    })
-})
-
-describe('Gets all habits', ()=>{
-    test('200 - Gets all habits', ()=>{
-        return request(app)
-        .get('/api/habits')
-        .expect(200)
-        .then(({body: {habits}})=>{
-            expect(habits).toHaveLength(2)
-            habits.forEach(habit => {
-                expect(habit).toMatchObject({
-                    habit_id: expect.any(Number),
-                    name: expect.any(String),
-                    description: expect.any(String),
-                    created_at: expect.any(String)
-                })
-            })
-        })
-    })
-})
-
-describe('Gets habits by name', ()=> {
-    test('200 - Gets a habit by name', ()=>{
-        return request(app)
-        .get('/api/habits/Running')
-        .expect(200)
-        .then(({body: {habits}})=>{
-            expect(habits).toMatchObject({
-                habit_id: 2,
-                name: 'Running',
-                description: 'Run 5 kilometers every day',
-                created_at: expect.any(String)
-            })
-        })
-    })
-    test('404 - Habit not found', ()=>{
-        return request(app)
-        .get('/api/habits/Alcohol')
-        .expect(404)
-        .then(({body})=>{
-            expect(body.msg).toBe('No habits found')
-        })
-    })
-    test('400 - Incorrect Data Type', ()=>{
-        return request(app)
-        .get('/api/habits/1')
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Incorrect Data Type')
-        })
-    })
-})
-
-describe('Posts a new habit', ()=>{
-    test('201 - Posts a new habit', ()=>{
-        const habitData = {
-            name: 'Alcohol',
-            description: 'Drinking Too Much'
-        }
-        return request(app)
-        .post('/api/habits')
-        .send(habitData)
-        .expect(201)
-        .then(({body: {habits}})=>{
-            expect(habits).toMatchObject({
-                habit_id: 3,
-                name: 'Alcohol',
-                description: 'Drinking Too Much',
-                created_at: expect.any(String)
-            })
-        })
-    })
-    test('400 - Missing Data', ()=> {
-        const habitData = {
-            name: 'Self Harm'
-        }
-        return request(app)
-        .post('/api/habits')
-        .send(habitData)
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Missing Data')
-        })
-    })
-    test('400 - Incorrect Data Type', ()=>{
-        const habitData = {
-            name: 1,
-            description: 1
-        }
-        return request(app)
-        .post('/api/habits')
-        .send(habitData)
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Incorrect Data Type')
-        })
-    })
-    test('400 - Habit already exists', ()=>{
-        const habitData = {
-            name: 'Running',
-            description: 'Running'
-        }
-        return request(app)
-        .post('/api/habits')
-        .send(habitData)
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Habit already exists')
-        })
-    })
-})
-
-describe('Gets friend request by users', ()=>{
-    test('200 - Gets a friend invite', ()=>{
-        return request(app)
-        .get('/api/friends?sender=JDoe&reciever=JPrince')
-        .expect(200)
-        .then(({body: {friends}})=>{
-            expect(friends).toMatchObject({
-                id: 1,
-                senderId: 1,
-                recieverId: 3,
-                invite: true,
-                inviteAccepted: true
-            })
-        })
-    })
-    test('400 - Missing Data', ()=>{
-        return request(app)
-        .get('/api/friends?sender=JDoe')
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Missing Data')
-        })
-    })
-    test('400 - Incorrect Data Type', ()=> {
-        return request(app)
-        .get('/api/friends?sender=1&reciever=1')
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Incorrect Data Type')
-        })
-    })
-    test('404 - User not found', ()=>{
-        return request(app)
-        .get('/api/friends?sender=scodia619&reciever=JDoe')
-        .expect(404)
-        .then(({body})=>{
-            expect(body.msg).toBe('No users found')
-        })
-    })
-})
-
-describe('Sends a request to be friends with a user', ()=>{
-    test('201 - Posts a new request', ()=>{
-        const friendData = {
-            sender: 'JDoe',
-            reciever: 'JSmith'
-        }
-        return request(app)
-        .post('/api/friends')
-        .send(friendData)
-        .expect(201)
-        .then(({body: {friends}})=>{
-            expect(friends).toMatchObject({
-                id: 2,
-                senderId: 1,
-                recieverId: 2,
-                invite: true,
-                inviteAccepted: false
-            })
-        })
-    })
-    test('400 - Missing Data', ()=>{
-        const friendData = {
-            sender: 'JDoe'
-        }
-        return request(app)
-        .post('/api/friends')
-        .send(friendData)
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Missing Data')
-        })
-    })
-    test('400 - Incorrect Data Type', ()=>{
-        const friendData = {
-            sender: 1,
-            reciever: 'JSmith'
-        }
-        return request(app)
-        .post('/api/friends')
-        .send(friendData)
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Incorrect Data Type')
-        })
-    })
-    test('404 - User doesnt exist', ()=>{
-        const friendData = {
-            sender: 'Scodia619',
-            reciever: 'JDoe'
-        }
-        return request(app)
-        .post('/api/friends')
-        .send(friendData)
-        .expect(404)
-        .then(({body})=>{
-            expect(body.msg).toBe('No users found')
-        })
-    })
-    test('400 - Invite already sent', ()=>{
-        const friendData = {
-            sender: 'JDoe',
-            reciever: 'JPrince'
-        }
-        return request(app)
-        .post('/api/friends')
-        .send(friendData)
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Invite already sent')
-        })
-    })
-})
-
-describe('Gets a users friend Invites', ()=>{
-    test('200 - Get all friend Requests', ()=>{
-        return request(app)
-        .get('/api/friends/JPrince')
-        .expect(200)
-        .then(({body: {friends}})=>{
-            expect(friends).toHaveLength(1)
-            friends.forEach(invite =>{
-                expect(invite).toMatchObject({
-                    id: 1,
-                    senderId: 1,
-                    recieverId: 3,
-                    invite: true,
-                    inviteAccepted: true
-                })
-            })
-        })
-    })
-    test('400 - Incorrect Data Type', ()=>{
-        return request(app)
-        .get('/api/friends/1')
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Incorrect Data Type')
-        })
-    })
-    test('404 - User doesnt exist', ()=>{
-        return request(app)
-        .get('/api/friends/scodia619')
-        .expect(404)
-        .then(({body})=>{
-            expect(body.msg).toBe('No users found')
-        })
-    })
-})
-
-describe('Patches the invite to accept the friend',()=>{
-    test('200 - Updates the invite', ()=>{
-        const inviteData = {
-            inviteAccepted: true,
-            sender: 'JDoe'
-        }
-        return request(app)
-        .patch('/api/friends/JPrince')
-        .send(inviteData)
-        .expect(200)
-        .then(({body: {friends}})=>{
-            expect(friends).toMatchObject({
-                id: 1,
-                senderId: 1,
-                recieverId: 3,
-                invite: true,
-                inviteAccepted: true
-            })
-        })
-    })
-    test('400 - Missing Data', ()=>{
-        const inviteData = {}
-        return request(app)
-        .patch('/api/friends/JPrince')
-        .send(inviteData)
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Missing Data')
-        })
-    })
-    test('400 - Incorrect Data Type', ()=>{
-        const inviteData = {
-            inviteAccepted: 1,
-            sender: 'JDoe'
-        }
-        return request(app)
-        .patch('/api/friends/JDoe')
-        .send(inviteData)
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Incorrect Data Type')
-        })
-    })
-    test('404 - User not found', ()=>{
-        const inviteData = {
-            inviteAccepted: true,
-            sender: 'JDoe'
-        }
-        return request(app)
-        .patch('/api/friends/scodia619')
-        .send(inviteData)
-        .expect(404)
-        .then(({body})=>{
-            expect(body.msg).toBe('No users found')
-        })
-    })
-    test('404 - No invites', ()=>{
-        const inviteData = {
-            inviteAccepted: true,
-            sender: 'JDoe'
-        }
-        return request(app)
-        .patch('/api/friends/JDoe')
-        .send(inviteData)
-        .expect(404)
-        .then(({body})=>{
-            expect(body.msg).toBe('No invites found')
-        })
-    })
-})
-
-describe('Gets all users your friends with', ()=>{
-    test('200 - Gets all users', ()=>{
-        return request(app)
-        .get('/api/friends/JPrince/accepted')
-        .expect(200)
-        .then(({body: {friends}})=>{
-            expect(friends).toHaveLength(1)
-            friends.forEach(friend => {
-                expect(friend).toMatchObject({
-                    id: 1,
-                    senderId: 1,
-                    recieverId: 3,
-                    invite: true,
-                    inviteAccepted: true
-                })
-            })
-        })
-    })
-    test('400 - Incorrect Data Type', ()=>{
-        return request(app)
-        .get('/api/friends/1/accepted')
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Incorrect Data Type')
-        })
-    })
-    test('404 - No users found', ()=>{
-        return request(app)
-        .get('/api/friends/scodia619/accepted')
-        .expect(404)
-        .then(({body})=>{
-            expect(body.msg).toBe('No users found')
-        })
-    })
-})
-
-describe('Getting All Resources', ()=>{
-    test('200 - Gets all resources', ()=>{
-        return request(app)
-        .get('/api/resources')
-        .expect(200)
-        .then(({body: {resources}})=>{
-            expect(resources).toHaveLength(2)
-            resources.forEach(resource => {
-                expect(resource).toMatchObject({
-                    resource_id: expect.any(Number),
-                    posterId: expect.any(Number),
-                    status: expect.any(Boolean),
-                    reviewerId: expect.any(Number),
-                    url: expect.any(String),
-                    name: expect.any(String),
-                    image_url: expect.any(String),
-                    description: expect.any(String)
-                })
-            })
-        })
-    })
-})
-
-describe('Gets all resource relating to a topic', ()=>{
-    test('200 - Gets all resources for the topic', ()=>{
-        return request(app)
-        .get('/api/resources/Technology')
-        .expect(200)
-        .then(({body: {resources}})=>{
-            expect(resources).toHaveLength(1)
-            resources.forEach(({resource})=>{
-                expect(resource).toMatchObject({
-                    resource_id: 2,
-                    posterId: 2,
-                    status: expect.any(Boolean),
-                    reviewerId: 3,
-                    url: 'https://example.com/resource2',
-                    image_url: 'https://example.com/images/resource2.jpg',
-                    name: 'Resource 2',
-                    description: 'Description of Resource 2'
-                })
-            })
-        })
-    })
-    test('400 - Incorrect Data Type', ()=>{
-        return request(app)
-        .get('/api/resources/1')
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Incorrect Data Type')
-        })
-    })
-    test('404 - No topic found', ()=>{
-        return request(app)
-        .get('/api/resources/banana')
-        .expect(404)
-        .then(({body})=>{
-            expect(body.msg).toBe('No topics found')
-        })
-    })
-})
-
-describe('Patching a resource by resource id', ()=>{
-  test('200 - Patches the resource by id', ()=>{
     return request(app)
-    .patch('/api/resources/approve/2')
-    .expect(200)
-    .then(({body: {resources}})=> {
-      expect(resources).toMatchObject({
-            posterId: 2, // User ID of another poster
-            reviewerId: 3, // User ID of another reviewer
-            status: true,
-            url: 'https://example.com/resource2',
-            name: 'Resource 2',
-            image_url: 'https://example.com/images/resource2.jpg',
-            description: 'Description of Resource 2',
-      })
+    .get('/api/resources/approve')
+    .expect(400)
+    .then(({body})=>{
+      expect(body.msg).toBe('Missing Data')
     })
   })
   test('400 - Incorrect Data Type', ()=>{
     return request(app)
-    .patch('/api/resources/approve/banana')
+    .get('/api/resources/approve?reviewerId=banana&status=1')
     .expect(400)
     .then(({body})=>{
       expect(body.msg).toBe('Incorrect Data Type')
     })
   })
-  test('404 - Resource Not Found', ()=>{
+  test('404 - User not found', ()=>{
     return request(app)
-    .patch('/api/resources/approve/5')
+    .get('/api/resources/approve?reviewerId=999&status=false')
     .expect(404)
     .then(({body})=>{
-      expect(body.msg).toBe('Resource not found')
+      expect(body.msg).toBe('No users found')
     })
   })
-})
-describe('Gets all resources based on status true', ()=>{
-    test('200 - Gets all resources for a topic', ()=>{
-        return request(app)
-        .get('/api/resources?status=true')
-        .expect(200)
-        .then(({body: {resources}})=>{
-            expect(resources).toHaveLength(1)
-            resources.forEach(resource=>{
-                expect(resource).toMatchObject({
-                    resource_id: expect.any(Number),
-                    posterId: expect.any(Number),
-                    reviewerId: expect.any(Number),
-                    status: true,
-                    url: expect.any(String),
-                    name: expect.any(String),
-                    image_url: expect.any(String),
-                    description: expect.any(String)
-                })
-            })
-        })
-    })
-    test('400 - Incorrect Data Type', ()=>{
-        return request(app)
-        .get('/api/resources?status=1')
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Incorrect Data Type')
-        })
-    })
-})
-
-describe('Gets status true by topic', ()=>{
-    test('200 - gets all reviewed Topics', ()=>{
-        return request(app)
-        .get('/api/resources/Science?status=true')
-        .expect(200)
-        .then(({body: {resources}})=>{
-            expect(resources).toHaveLength(1)
-            resources.forEach(({resource})=>{
-                expect(resource).toMatchObject({
-                    resource_id: 1,
-                    posterId: 1,
-                    status: true,
-                    reviewerId: 2,
-                    url: 'https://example.com/resource1',
-                    image_url: 'https://example.com/images/resource1.jpg',
-                    name: 'Resource 1',
-                    description: 'Description of Resource 1'
-                })
-            })
-        })
-    })
-    test('400 - Incorrect Data Type', ()=>{
-        return request(app)
-        .get('/api/resources/Science?status=1')
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Incorrect Data Type')
-        })
-    })
-})
-
-describe('Posting a new resource', ()=>{
-    test('201 - Posts and returns resource', ()=>{
-        const postData = {
-            posterId: 'JDoe',
-            reviewer_id: 1,
-            url: 'https:example.com/sh',
-            name: 'Good Samaritans',
-            image_url: 'https:example.com/images/sh',
-            description: '24/7 Phone help',
-            topic: 'Science'
-        }
-        return request(app)
-        .post('/api/resources')
-        .send(postData)
-        .expect(201)
-        .then(({body: {resources}})=>{
-            expect(resources).toMatchObject({
-                resource_id: 3,
-                posterId: 1,
-                reviewerId: 1,
-                url: 'https:example.com/sh',
-            name: 'Good Samaritans',
-            image_url: 'https:example.com/images/sh',
-            description: '24/7 Phone help',
-            status: false
-            })
-        })
-    })
-    test('400 - Missing Data',()=>{
-        const postData = {
-            url: 'https:example.com/sh',
-            name: 'Good Samaritans',
-            reviewer_id: 1,
-            image_url: 'https:example.com/images/sh',
-            description: '24/7 Phone help',
-            topic: 'Science'
-        }
-        return request(app)
-        .post('/api/resources')
-        .send(postData)
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Missing Data')
-        })
-    })
-    test('400 - Incorrect Data Type', ()=>{
-        const postData = {
-            posterId: 1,
-            reviewer_id: 1,
-            url: 'https:example.com/sh',
-            name: 'Good Samaritans',
-            image_url: 'https:example.com/images/sh',
-            description: '24/7 Phone help',
-            topic: 'Science'
-        }
-        return request(app)
-        .post('/api/resources')
-        .send(postData)
-        .expect(400)
-        .then(({body})=>{
-            expect(body.msg).toBe('Incorrect Data Type')
-        })
-    })
-    test('404 - User not found', ()=>{
-        const postData = {
-            posterId: 'Scodia619',
-            url: 'https:example.com/sh',
-            reviewer_id: 1,
-            name: 'Good Samaritans',
-            image_url: 'https:example.com/images/sh',
-            description: '24/7 Phone help',
-            topic: 'Science'
-        }
-        return request(app)
-        .post('/api/resources')
-        .send(postData)
-        .expect(404)
-        .then(({body})=>{
-            expect(body.msg).toBe('No users found')
-        })
-    })
-    test('404 - Topic not found', ()=>{
-        const postData = {
-            posterId: 'JDoe',
-            reviewer_id: 1,
-            url: 'https:example.com/sh',
-            name: 'Good Samaritans',
-            image_url: 'https:example.com/images/sh',
-            description: '24/7 Phone help',
-            topic: 'Moody'
-        }
-        return request(app)
-        .post('/api/resources')
-        .send(postData)
-        .expect(404)
-        .then(({body})=>{
-            expect(body.msg).toBe('No topics found')
-        })
-    })
-})
+});

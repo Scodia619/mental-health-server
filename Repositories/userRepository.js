@@ -57,3 +57,13 @@ exports.selectUserByUserAndPass = async (username, password) => {
     })
     return users
 }
+
+exports.selectUserById = async (user_id) => {
+    const users = await prisma.user.findUnique({
+        where: {
+            id: user_id
+        }
+    })
+
+    return users
+}

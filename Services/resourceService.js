@@ -5,9 +5,10 @@ const {
   postResourceTopic,
   selectResourcesById,
   patchResourceApproved,
+  selectResourceByReviewerAndStatus,
 } = require("../Repositories/resourceRepository");
 const { selectTopicByName } = require("../Repositories/topicRepository");
-const { selectUsersByUsername } = require("../Repositories/userRepository");
+const { selectUsersByUsername, selectUserById } = require("../Repositories/userRepository");
 const {
   noTopicsError,
   incorrectDataError,
@@ -123,3 +124,33 @@ exports.postNewResource = (req, res, next) => {
       next(err);
     });
 };
+
+exports.getResourcesByReviewerAndStatus = (req, res, next) => {
+    const {reviewerId, status} = req.query
+    let boolStatus;
+    if(!reviewerId || !status){
+        throw missingDataError
+    }
+
+    if(status === "false"){
+        boolStatus = false
+    }else{
+        boolStatus = true
+    }
+
+    if(isNaN(parseInt(reviewerId)) || (status !== "true" & status !== "false")){
+        throw incorrectDataError
+    }
+
+    selectUserById(parseInt(reviewerId)).then((users)=> {
+        if(!users){
+            throw noUserError
+        }
+
+        return selectResourceByReviewerAndStatus(reviewerId, boolStatus)
+    }).then((resources)=>{
+        res.status(200).send({resources})
+    }).catch((err)=>{
+        next(err)
+    })
+}

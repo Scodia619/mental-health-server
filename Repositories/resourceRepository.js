@@ -24,10 +24,8 @@ exports.selectResourcesByTopic = async (topic_id, status) => {
 
       if(status){
           const filteredResources = resources.filter((resourceTopic) => {
-            console.log(resourceTopic)
             return resourceTopic.resource.status === Boolean(status); // Assuming 'status' is a boolean
           });
-          console.log(filteredResources)
           return filteredResources
       }
 
@@ -71,4 +69,15 @@ exports.selectResourcesById = async (resource_id) => {
     })
 
     return resources
+}
+
+exports.selectResourceByReviewerAndStatus = async (reviewerId, status) => {
+    const resources = await prisma.resources.findMany({
+        where: {
+            reviewerId: parseInt(reviewerId),
+            status: status
+        }
+    })
+
+      return resources
 }
