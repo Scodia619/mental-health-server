@@ -1391,3 +1391,10 @@ describe("Gets a resource by reviewer Id and status false", () => {
     })
   })
 });
+
+describe('Patches a goal if broken', ()=>{
+  test('200 - Patches end date correctly and updated date', ()=>{
+    return request(app)
+    .patch('/api/goals?user_id=1')
+  })
+})
