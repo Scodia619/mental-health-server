@@ -46,7 +46,7 @@ exports.getUsersById = (req, res, next) => {
   if (isNaN(parseInt(id))) {
     throw incorrectDataError;
   }
-  selectUserById(id)
+  selectUserById(parseInt(id))
     .then((users) => {
       if (!users) {
         throw noUserError;
