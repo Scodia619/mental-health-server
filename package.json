@@ -4,6 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "listen": "node listen",
     "test": "jest",
     "seed": "node ./prisma/seed"
   },
