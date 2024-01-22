@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 exports.selectAllPosts = async (isPrivate, username) => {
     const posts = await prisma.posts.findMany({
       orderBy: {
-        created_at: "desc"
+        created_at: "asc"
       },
         where: {
             is_private: isPrivate !== undefined ? isPrivate : undefined,
@@ -17,7 +17,7 @@ exports.selectAllPosts = async (isPrivate, username) => {
 exports.selectPostsByTopic = async (topic_id, isPrivate, user_id) => {
     const posts = await prisma.postTopics.findMany({
       orderBy: {
-        created_at: "desc"
+        created_at: "asc"
       },
         where: {
           topic_id: topic_id,
