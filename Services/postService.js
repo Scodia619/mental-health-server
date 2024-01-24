@@ -86,16 +86,13 @@ exports.createNewPost = (req, res, next) => {
             content,
             title
         }
-        return postNewPost(postData).then((posts)=>{
-            returnedPost = posts
-            return postNewPostTopics(posts.post_id, topic_id)
+        return postNewPost(postData)
         }).then((posts)=>{
             returnedPost = posts
             return postNewPostTopics(posts.post_id, topic_id)
         }).then((postTopics)=>{
             res.status(201).send({posts: returnedPost})
-        })
-    }).catch(err => {
+        }).catch(err => {
         next(err)
     })
 }

@@ -2,7 +2,6 @@ const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 
 exports.selectAllResources = async (status) => {
-    console.log(status)
     let whereCondition = {};
   if (status !== undefined) {
     whereCondition = {where: {
@@ -10,7 +9,6 @@ exports.selectAllResources = async (status) => {
     }};
     const resources = await prisma.resources.findMany(whereCondition)
 
-    console.log(resources)
     return resources
 }
 

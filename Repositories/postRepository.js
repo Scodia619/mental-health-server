@@ -17,7 +17,9 @@ exports.selectAllPosts = async (isPrivate, username) => {
 exports.selectPostsByTopic = async (topic_id, isPrivate, user_id) => {
     const posts = await prisma.postTopics.findMany({
       orderBy: {
-        created_at: "desc"
+        post:{
+          created_at: "desc"
+        }
       },
         where: {
           topic_id: topic_id,

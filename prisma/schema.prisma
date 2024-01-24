@@ -53,7 +53,6 @@ model PostTopics{
   topic Topic @relation(fields: [topic_id], references: [id])
   topic_id Int
 
-  @@unique([post_id, topic_id])
 }
 
 model PostComments{
