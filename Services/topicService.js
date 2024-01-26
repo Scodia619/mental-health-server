@@ -1,5 +1,6 @@
-const { selectAllTopics, selectTopicByName, postNewTopic } = require("../Repositories/topicRepository")
-const { noTopicsError, incorrectDataError, missingDataError, topicExistsError } = require("../errorVariables")
+const { selectPostById } = require("../Repositories/postRepository")
+const { selectAllTopics, selectTopicByName, postNewTopic, selectTopicByPost } = require("../Repositories/topicRepository")
+const { noTopicsError, incorrectDataError, missingDataError, topicExistsError, noPostsError } = require("../errorVariables")
 
 exports.getAllTopics = (req, res, next) => {
     selectAllTopics().then((topics)=>{
@@ -38,6 +39,24 @@ exports.createNewTopic = (req, res, next) => {
         return postNewTopic({topic_name})
     }).then((topics)=>{
         res.status(201).send({topics})
+    }).catch(err => {
+        next(err)
+    })
+}
+
+exports.getTopicByPost = (req, res, next) => {
+    const {id} = req.params
+
+    if(isNaN(parseInt(id))){
+        throw incorrectDataError
+    }
+    selectPostById(id).then((post)=>{
+        if(!post){
+            throw noPostsError
+        }
+        return selectTopicByPost(id)
+    }).then((topics)=>{
+        res.status(200).send({topics})
     }).catch(err => {
         next(err)
     })

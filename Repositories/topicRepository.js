@@ -21,3 +21,14 @@ exports.postNewTopic = async (topicData) => {
     })
     return topics
 }
+
+exports.selectTopicByPost = async (id) => {
+    const topics = await prisma.postTopics.findUnique({
+        where: {
+            post_id: id
+        },
+        include: {
+            topic: true
+        }
+    })
+}
