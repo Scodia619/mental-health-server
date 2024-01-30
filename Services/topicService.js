@@ -50,11 +50,14 @@ exports.getTopicByPost = (req, res, next) => {
     if(isNaN(parseInt(id))){
         throw incorrectDataError
     }
-    selectPostById(id).then((post)=>{
+
+    const parsedId = parseInt(id)
+
+    selectPostById(parsedId).then((post)=>{
         if(!post){
             throw noPostsError
         }
-        return selectTopicByPost(id)
+        return selectTopicByPost(parsedId)
     }).then((topics)=>{
         res.status(200).send({topics})
     }).catch(err => {
