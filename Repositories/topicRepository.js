@@ -31,4 +31,5 @@ exports.selectTopicByPost = async (id) => {
             topic: true
         }
     })
+    return topics
 }
