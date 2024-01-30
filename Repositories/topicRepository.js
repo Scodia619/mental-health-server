@@ -23,7 +23,7 @@ exports.postNewTopic = async (topicData) => {
 }
 
 exports.selectTopicByPost = async (id) => {
-    const topics = await prisma.postTopics.findUnique({
+    const topics = await prisma.postTopics.findFirst({
         where: {
             post_id: id
         },
